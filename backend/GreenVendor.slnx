@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/GreenVendor.Application/">
+    <Project Path="GreenVendor.Application/Greenvendor.Application.csproj" />
+  </Folder>
+  <Project Path="GreenVendor.Api/GreenVendor.Api.csproj" />
+  <Project Path="GreenVendor.Domain/GreenVendor.Domain.csproj" />
+  <Project Path="GreenVendor.Infrastructure/GreenVendor.Infrastructure.csproj" />
+  <Project Path="GreenVendor.Tests/GreenVendor.Tests.csproj" />
+</Solution>
