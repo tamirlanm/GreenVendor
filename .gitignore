@@ -1,3 +1,4 @@
+# --- .NET / ASP.NET Core ---
 bin/
 obj/
 .vs/
@@ -7,3 +8,16 @@ TestResults/
 *.cache
 *.log
 
+# --- React ---
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+
+# --- Environment files ---
+.env
+.env.*
+!.env.example
+
+# --- Docker ---
