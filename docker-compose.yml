@@ -9,11 +9,11 @@ services:
       MSSQL_SA_PASSWORD: "GreenVendor@123Password"
   api:
     build:
-      context: .
+      context: ./backend
       dockerfile: GreenVendor.Api/Dockerfile
     ports:
       - "5000:8080"
     environment:
-      - ConnectionStrings__DefaultConnection=Server=db;Database=GreenVendor;User Id=sa;Password=GreenVendor@123Password;TrustServerCertificate=True;
+      - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - db

@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/GreenVendor.Application/">
-    <Project Path="GreenVendor.Application/Greenvendor.Application.csproj" />
+    <Project Path="GreenVendor.Application/GreenVendor.Application.csproj" />
   </Folder>
   <Project Path="GreenVendor.Api/GreenVendor.Api.csproj" />
   <Project Path="GreenVendor.Domain/GreenVendor.Domain.csproj" />
