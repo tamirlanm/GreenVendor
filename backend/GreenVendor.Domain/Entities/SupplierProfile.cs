@@ -4,6 +4,8 @@ public class SupplierProfile
 {
     public Guid Id {get;set;}
     public Guid UserId {get;set;}
+    public string Email {get;set;} = string.Empty;
+    public string Phone {get;set;} = string.Empty;
     public string CompanyName {get;set;} = string.Empty;
     public Industry Industry {get;set;}
     public string? Description {get;set;}
