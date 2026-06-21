@@ -8,8 +8,8 @@ public class SupplierService : ISupplierService
     {
         var mockSuppliers = new List<SupplierCatalogItemResponse>
         {
-            new() { Id = 1, CompanyName = "EcoPack", Industry = "Packaging", Description = "Green packaging", IsVerified = true, LatestEsgScore = 85.5m },
-            new() { Id = 2, CompanyName = "BioFuel Co", Industry = "Energy", Description = "Pure biofuel", IsVerified = false, LatestEsgScore = 92.0m }
+            new() { Id = Guid.NewGuid(), CompanyName = "EcoPack", Industry = "Packaging", Description = "Green packaging", IsVerified = true, LatestEsgScore = 85.5m },
+            new() { Id = Guid.NewGuid(), CompanyName = "BioFuel Co", Industry = "Energy", Description = "Pure biofuel", IsVerified = false, LatestEsgScore = 92.0m }
         };
 
         return Task.FromResult(mockSuppliers);
