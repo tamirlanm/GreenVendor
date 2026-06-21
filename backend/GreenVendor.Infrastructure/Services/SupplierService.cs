@@ -1,5 +1,6 @@
 namespace GreenVendor.Infrastructure.Services;
 using GreenVendor.Application.DTOs;
+using GreenVendor.Application.Interfaces;
 
 public class SupplierService : ISupplierService
 {

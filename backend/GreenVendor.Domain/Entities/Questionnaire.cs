@@ -10,5 +10,4 @@ public class Questionnaire
     public SupplierProfile Supplier {get;set;} = null!;
     public ICollection<QuestionnaireAnswer> Answers {get;set;} = [];
     public EsgScore? Score {get;set;}
-
 }

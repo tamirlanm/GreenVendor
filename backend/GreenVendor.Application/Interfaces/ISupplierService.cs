@@ -1,5 +1,5 @@
 using GreenVendor.Application.DTOs;
-
+namespace GreenVendor.Application.Interfaces;
 public interface ISupplierService
 {
     Task<List<SupplierCatalogItemResponse>> GetSuppliersQueryAsync(SupplierQuery query);

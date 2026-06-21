@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using GreenVendor.Application.DTOs;
-
+using GreenVendor.Application.Interfaces;
 namespace GreenVendor.Api.Controller;
 
 [ApiController]
