@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GreenVendor.Api.Controllers;
 
 [ApiController]
-[Route("api/[contorller]")]
+[Route("api/[controller]")]
 public class QuestionnaireController : ControllerBase
 {
     private readonly IQuestionnaireService _questionnaireService;
