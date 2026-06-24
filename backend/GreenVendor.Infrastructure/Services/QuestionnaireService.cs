@@ -3,7 +3,7 @@ using GreenVendor.Application.Interfaces;
 using Microsoft.Extensions.Options;
 namespace GreenVendor.Infrastructure.Services;
 
-public class Questionnaire : IQuestionnaireService
+public class QuestionnaireService : IQuestionnaireService
 {
     public Task<IEnumerable<QuestionDTO>> GetQuestionsAsync()
     {
