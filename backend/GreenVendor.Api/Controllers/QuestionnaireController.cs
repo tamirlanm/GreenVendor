@@ -1,11 +1,13 @@
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GreenVendor.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Supplier")]
 public class QuestionnaireController : ControllerBase
 {
     private readonly IQuestionnaireService _questionnaireService;

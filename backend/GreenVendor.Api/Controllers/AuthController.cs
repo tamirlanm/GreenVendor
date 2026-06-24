@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using GreenVendor.Application.DTOs;
+using GreenVendor.Infrastructure.Data;
+using GreenVendor.Application.Interfaces;
+using GreenVendor.Domain.Entities;
 
 namespace GreenVendor.Api.Controller;
 
@@ -7,27 +10,38 @@ namespace GreenVendor.Api.Controller;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    [HttpPost("register/buyer")]
-    public ActionResult RegisterBuyer([FromBody] RegisterRequest req)
+    private readonly IAuthService _authService;
+    public AuthController(IAuthService authService) => _authService = authService;
+    [HttpPost("register")]
+    public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
     {
-        return Ok();
-    }
-    
-    [HttpPost("register/supplier")]
-    public ActionResult RegisterSupplier([FromBody] RegisterRequest req)
-    {
-        return Ok();
+        var response = await _authService.RegisterAsync(request);
+        if(response is null)
+        {
+            return BadRequest(new {message = "User with this Email already registered."});
+        }
+        return response;
     }
 
     [HttpPost("login")]
-    public ActionResult<AuthResponse> Login([FromBody] LoginRequest req)
+    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
     {
-        var fakeResponse = new AuthResponse
+        var response = await _authService.LoginAsync(request);
+        if(response == null)
         {
-            AccessToken = "fake-jwt-access-token",
-            RefreshToken = "fake-refresh-token",
-            Role = Domain.Enums.UserRole.Buyer
-        };
-        return Ok(fakeResponse);
+            return Unauthorized(new {message = "Incorrect Email or Password."});
+        }
+        return response;
+    }
+    
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        var response = await _authService.RefreshTokenAsync(request.RefreshToken);
+        if(response == null)
+        {
+            return BadRequest(new {message = "Invalid or expired refresh-token."});
+        }
+        return response;
     }
 }

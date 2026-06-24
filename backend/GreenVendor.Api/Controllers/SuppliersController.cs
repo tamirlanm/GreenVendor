@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 namespace GreenVendor.Api.Controller;
 
 [ApiController]
@@ -31,6 +32,7 @@ public class SuppliersController : ControllerBase
         return Ok(response);
     }
 
+    [Authorize(Roles = "Supplier")]
     [HttpGet("me")]
     public async Task<ActionResult<SupplierDetailsResponse>> GetMyProfile()
     {
@@ -39,6 +41,7 @@ public class SuppliersController : ControllerBase
         return Ok(response);
     }
 
+    [Authorize(Roles = "Supplier")]
     [HttpPut("me")]
     public async Task<ActionResult<SupplierDetailsResponse>> UpdateMyProfile([FromBody] UpdateSupplierRequest request)
     {
@@ -51,6 +54,7 @@ public class SuppliersController : ControllerBase
         return Ok(response);
     }
 
+    [Authorize(Roles = "Supplier")]
     [HttpPost("submit")]
     public async Task<ActionResult> UploadCertificate([FromForm] IFormFile file)
     {
