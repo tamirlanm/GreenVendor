@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using GreenVendor.Application.Interfaces;
-using GreenVendor.Application.JwtSettings;
+using GreenVendor.Application.Configurations;
 using GreenVendor.Domain.Entities;
 using GreenVendor.Infrastructure.Data;
 using Microsoft.Extensions.Options;

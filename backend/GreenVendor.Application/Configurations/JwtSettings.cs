@@ -1,4 +1,4 @@
-namespace GreenVendor.Application.JwtSettings;
+namespace GreenVendor.Application.Configurations;
 public class JwtSettings
 {
     public string Secret {get;set;} = string.Empty;

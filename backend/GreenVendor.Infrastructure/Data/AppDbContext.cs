@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using GreenVendor.Domain.Entities;
 using GreenVendor.Domain.Enums;
+using GreenVendor.Application.Interfaces;
 namespace GreenVendor.Infrastructure.Data;
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IAppDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options){}
 

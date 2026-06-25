@@ -1,20 +1,18 @@
-using System.ComponentModel.DataAnnotations;
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Interfaces;
-using GreenVendor.Application.JwtSettings;
 using GreenVendor.Domain.Entities;
-using GreenVendor.Infrastructure.Data;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using GreenVendor.Domain.Enums;
+using GreenVendor.Application.Configurations;
 
-namespace GreenVendor.Infrastructure.Services;
+namespace GreenVendor.Application.Services;
 public class AuthService : IAuthService
 {
-    private readonly AppDbContext _db;
+    private readonly IAppDbContext _db;
     private ITokenService _tokenService;
     private readonly JwtSettings _jwtSettings;
-    public AuthService(AppDbContext db, ITokenService tokenService, IOptions<JwtSettings> jwtSettings)
+    public AuthService(IAppDbContext db, ITokenService tokenService, IOptions<JwtSettings> jwtSettings)
     {
         _db = db;
         _tokenService = tokenService;
