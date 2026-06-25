@@ -8,11 +8,29 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<SupplierProfile> SupplierProfiles { get; set; }
+    public DbSet<BuyerProfile> BuyerProfiles {get;set;}
+    public DbSet<Order> Orders {get;set;}
+    public DbSet<Product> Products {get;set;}
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<EsgScore> EsgScores { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Questionnaire> Questionnaires { get; set; }
     public DbSet<QuestionnaireAnswer> QuestionnaireAnswers { get; set; }
 
-    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Product)
+            .WithMany()
+            .HasForeignKey(o => o.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Buyer)
+            .WithMany(b => b.Orders)
+            .HasForeignKey(o => o.BuyerId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
 }
