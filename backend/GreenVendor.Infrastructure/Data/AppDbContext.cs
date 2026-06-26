@@ -33,5 +33,21 @@ public class AppDbContext : DbContext, IAppDbContext
             .WithMany(b => b.Orders)
             .HasForeignKey(o => o.BuyerId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Order>()
+            .Property(o => o.TotalPrice)
+            .HasPrecision(18,2);
+        
+        modelBuilder.Entity<Product>()
+            .Property(p => p.Price)
+            .HasPrecision(18,2);
+
+        modelBuilder.Entity<BuyerProfile>()
+            .Property(b => b.Industry)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<SupplierProfile>()
+            .Property(s => s.Industry)
+            .HasConversion<string>();
     }
 }

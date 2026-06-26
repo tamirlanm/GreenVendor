@@ -39,6 +39,7 @@ public class GlobalExceptionMiddleware
         {
             _logger.LogError(exception, "Unhandled system exception has occured.");
         }
+        
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = statusCode;
 

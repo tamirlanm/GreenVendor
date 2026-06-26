@@ -4,6 +4,7 @@ using GreenVendor.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GreenVendor.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260626133027_fixedModels")]
+    partial class fixedModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,6 +37,10 @@ namespace GreenVendor.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Industry")
                         .IsRequired()
@@ -108,7 +115,6 @@ namespace GreenVendor.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -146,7 +152,6 @@ namespace GreenVendor.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("SupplierId")
@@ -267,6 +272,10 @@ namespace GreenVendor.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Industry")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -375,7 +384,7 @@ namespace GreenVendor.Infrastructure.Migrations
             modelBuilder.Entity("GreenVendor.Domain.Entities.Product", b =>
                 {
                     b.HasOne("GreenVendor.Domain.Entities.SupplierProfile", "Supplier")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -455,11 +464,6 @@ namespace GreenVendor.Infrastructure.Migrations
             modelBuilder.Entity("GreenVendor.Domain.Entities.Questionnaire", b =>
                 {
                     b.Navigation("Answers");
-                });
-
-            modelBuilder.Entity("GreenVendor.Domain.Entities.SupplierProfile", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("GreenVendor.Domain.Entities.User", b =>
