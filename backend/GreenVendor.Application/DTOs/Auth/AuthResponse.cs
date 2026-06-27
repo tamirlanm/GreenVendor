@@ -1,4 +1,3 @@
-using GreenVendor.Domain.Entities;
 using GreenVendor.Domain.Enums;
 
 namespace GreenVendor.Application.DTOs;

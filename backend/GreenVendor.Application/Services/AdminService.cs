@@ -1,7 +1,7 @@
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Interfaces;
 
-namespace GreenVendor.Infrastructure.Services;
+namespace GreenVendor.Application.Services;
 public class AdminService : IAdminService
 {
     public Task<IEnumerable<SupplierCatalogItemResponse>> GetSuppliersAdminAsync()

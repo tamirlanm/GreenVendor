@@ -498,6 +498,3 @@ coverage/
 *.seed
 docker-data/
 
-appsettings.json
-**/appsettings.json
-appsettings.*.json

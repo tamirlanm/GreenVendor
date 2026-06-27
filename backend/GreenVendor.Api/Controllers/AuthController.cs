@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using GreenVendor.Application.DTOs;
+using GreenVendor.Application.Interfaces;
 
 namespace GreenVendor.Api.Controller;
 
@@ -7,27 +8,26 @@ namespace GreenVendor.Api.Controller;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    [HttpPost("register/buyer")]
-    public ActionResult RegisterBuyer([FromBody] RegisterRequest req)
+    private readonly IAuthService _authService;
+    public AuthController(IAuthService authService) => _authService = authService;
+    [HttpPost("register")]
+    public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
     {
-        return Ok();
-    }
-    
-    [HttpPost("register/supplier")]
-    public ActionResult RegisterSupplier([FromBody] RegisterRequest req)
-    {
-        return Ok();
+        var response = await _authService.RegisterAsync(request);
+        return Ok(response);
     }
 
     [HttpPost("login")]
-    public ActionResult<AuthResponse> Login([FromBody] LoginRequest req)
+    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
     {
-        var fakeResponse = new AuthResponse
-        {
-            AccessToken = "fake-jwt-access-token",
-            RefreshToken = "fake-refresh-token",
-            Role = Domain.Enums.UserRole.Buyer
-        };
-        return Ok(fakeResponse);
+        var response = await _authService.LoginAsync(request);
+        return Ok(response);
+    }
+    
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        var response = await _authService.RefreshTokenAsync(request.RefreshToken);
+        return Ok(response);
     }
 }

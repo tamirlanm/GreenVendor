@@ -4,6 +4,7 @@ using GreenVendor.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GreenVendor.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260625224222_newModels")]
+    partial class newModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,9 +38,8 @@ namespace GreenVendor.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Industry")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Industry")
+                        .HasColumnType("int");
 
                     b.Property<string>("PreferredMinGrade")
                         .HasColumnType("nvarchar(max)");
@@ -63,11 +65,9 @@ namespace GreenVendor.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Environmental")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Governance")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Grade")
@@ -75,14 +75,12 @@ namespace GreenVendor.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Social")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("SupplierId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Total")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -112,7 +110,6 @@ namespace GreenVendor.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -150,7 +147,6 @@ namespace GreenVendor.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("SupplierId")
@@ -186,122 +182,11 @@ namespace GreenVendor.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Weight")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Questions");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Category = 0,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No\", \"Points\":0}, {\"Text\":\"Partially (up to 30%)\", \"Points\":0.5}, {\"Text\":\"Yes (more than 30%)\", \"Points\": 1.0}]",
-                            Text = "Does your company use renewable energy sources (RES)?",
-                            Weight = 1.0m
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Category = 0,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No\", \"Points\":0}, {\"Text\":\"In the production process\", \"Points\":0.3}, {\"Text\":\"Yes it works completely\", \"Points\": 1.0}]",
-                            Text = "Has the company implemented a system for the separate collection and safe disposal of hazardous waste?",
-                            Weight = 1.2m
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Category = 0,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No\",\"Points\":0},{\"Text\":\"Accounting is maintained, but auditing is not carried out\",\"Points\":0.5},{\"Text\":\"Yes, the data is certified by an external auditor\",\"Points\":1.0}]",
-                            Text = "Does your company regularly record and audit its greenhouse gas (CO2) emissions?",
-                            Weight = 1.0m
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Category = 0,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No\",\"Points\":0},{\"Text\":\"Yes, in some areas\",\"Points\":0.6},{\"Text\":\"Yes, in all production\",\"Points\":1.0}]",
-                            Text = "Does the company use closed-loop water supply technologies?",
-                            Weight = 0.8m
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Category = 1,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"There are no basic regulations\",\"Points\":0},{\"Text\":\"There are basic instructions\",\"Points\":0.5},{\"Text\":\"Yes, international standards (ISO 45001) have been implemented\",\"Points\":1.0}]",
-                            Text = "Does the company have formal occupational safety and health and injury reduction programs?",
-                            Weight = 1.2m
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Category = 1,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No, employees train themselves.\",\"Points\":0},{\"Text\":\"Yes, for some departments\",\"Points\":0.5},{\"Text\":\"Yes, systematically for all staff\",\"Points\":1.0}]",
-                            Text = "Does the company provide regular training, workshops, or advanced training courses for employees at its own expense?",
-                            Weight = 1.0m
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Category = 1,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No\",\"Points\":0},{\"Text\":\"Declared orally\",\"Points\":0.4},{\"Text\":\"Yes, it is enshrined in the Company Code\",\"Points\":1.0}]",
-                            Text = "Does the company have a formal equality, inclusion and non-discrimination policy?",
-                            Weight = 0.9m
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Category = 1,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No\",\"Points\":0},{\"Text\":\"Rarely / one-time promotions\",\"Points\":0.5},{\"Text\":\"Yes, on a regular long-term basis\",\"Points\":1.0}]",
-                            Text = "Does the company finance charitable, environmental, or social projects in the regions where it operates?",
-                            Weight = 0.9m
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Category = 2,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No\",\"Points\":0},{\"Text\":\"There are only general rules in contracts\",\"Points\":0.4},{\"Text\":\"Yes, there is a dedicated compliance officer and regulations.\",\"Points\":1.0}]",
-                            Text = "Has the company adopted a Code of Business Ethics and an anti-corruption compliance policy?",
-                            Weight = 1.2m
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Category = 2,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No, only government audits\",\"Points\":0},{\"Text\":\"Once every few years\",\"Points\":0.5},{\"Text\":\"Yes, annually by independent auditors\",\"Points\":1.0}]",
-                            Text = "Are your company's financial statements regularly audited by an independent external auditor?",
-                            Weight = 1.1m
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Category = 2,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"No channels\",\"Points\":0},{\"Text\":\"There is a regular suggestion box (does not guarantee anonymity)\",\"Points\":0.4},{\"Text\":\"Yes, there is a dedicated hotline / anonymous portal\",\"Points\":1.0}]",
-                            Text = "Does the company have transparent and secure channels for anonymous whistleblowing?",
-                            Weight = 1.0m
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Category = 2,
-                            IsActive = true,
-                            OptionsJson = "[{\"Text\":\"Information is completely closed\",\"Points\":0},{\"Text\":\"Partially disclosed upon request\",\"Points\":0.6},{\"Text\":\"Yes, the information is completely public and transparent\",\"Points\":1.0}]",
-                            Text = "Does the company disclose the structure of its ultimate beneficial owners and top management on its official website?",
-                            Weight = 0.7m
-                        });
                 });
 
             modelBuilder.Entity("GreenVendor.Domain.Entities.Questionnaire", b =>
@@ -382,9 +267,12 @@ namespace GreenVendor.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Industry")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Industry")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsVerified")
                         .HasColumnType("bit");
@@ -393,6 +281,7 @@ namespace GreenVendor.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
@@ -440,7 +329,6 @@ namespace GreenVendor.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("PointsEarned")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("QuestionId")
@@ -491,7 +379,7 @@ namespace GreenVendor.Infrastructure.Migrations
             modelBuilder.Entity("GreenVendor.Domain.Entities.Product", b =>
                 {
                     b.HasOne("GreenVendor.Domain.Entities.SupplierProfile", "Supplier")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -571,11 +459,6 @@ namespace GreenVendor.Infrastructure.Migrations
             modelBuilder.Entity("GreenVendor.Domain.Entities.Questionnaire", b =>
                 {
                     b.Navigation("Answers");
-                });
-
-            modelBuilder.Entity("GreenVendor.Domain.Entities.SupplierProfile", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("GreenVendor.Domain.Entities.User", b =>

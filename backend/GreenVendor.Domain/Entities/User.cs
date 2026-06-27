@@ -9,5 +9,6 @@ public class User
     public UserRole Role {get;set;}
     public DateTime CreatedAt {get;set;}
     public SupplierProfile? SupplierProfile {get;set;}
+    public BuyerProfile? BuyerProfile {get;set;}
     public ICollection<RefreshToken> RefreshTokens {get;set;} = [];   
 }

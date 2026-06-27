@@ -4,8 +4,7 @@ public class SupplierProfile
 {
     public Guid Id {get;set;}
     public Guid UserId {get;set;}
-    public string Email {get;set;} = string.Empty;
-    public string Phone {get;set;} = string.Empty;
+    public string? Phone {get;set;} = string.Empty;
     public string CompanyName {get;set;} = string.Empty;
     public Industry Industry {get;set;}
     public string? Description {get;set;}
@@ -14,4 +13,5 @@ public class SupplierProfile
     public DateTime CreatedAt {get;set;}
     public User User {get;set;} = null!;
     public EsgScore? LatestScore {get;set;}
+    public ICollection <Product> Products {get;set;} = [];
 }
