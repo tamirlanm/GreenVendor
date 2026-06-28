@@ -25,10 +25,6 @@ public class SuppliersController : ControllerBase
     public async Task<ActionResult<SupplierDetailsResponse>> GetSupplier([FromRoute] Guid id)
     {
         var response = await _supplierService.GetSupplierDetailsAsync(id);
-        if(response is null)
-        {
-            return NotFound(new {message = $"Supplier with Id={id} not found."});
-        }
         return Ok(response);
     }
 
@@ -47,10 +43,6 @@ public class SuppliersController : ControllerBase
     {
         Guid currentSupplierId = Guid.NewGuid();
         var response = await _supplierService.UpdateSupplierAsync(currentSupplierId,request);
-        if(response is null)
-        {
-            return NotFound(new {message = $"Supplier not found."});
-        }
         return Ok(response);
     }
 
