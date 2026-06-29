@@ -9,9 +9,11 @@ namespace GreenVendor.Application.Services;
 public class AdminService : IAdminService
 {   
     private readonly IAppDbContext _db;
-    public AdminService(IAppDbContext db)
+    private readonly IQuestionnaireService _questionnaireService;
+    public AdminService(IAppDbContext db, IQuestionnaireService questionnaireService)
     {
         _db = db;
+        _questionnaireService = questionnaireService;
     }
 
     public async Task<IEnumerable<SupplierCatalogItemResponse>> GetSuppliersAdminAsync()
@@ -72,4 +74,9 @@ public class AdminService : IAdminService
         };
     }
     
+    public async Task CreateQuestionnaireForSupplierAsync(Guid supplierId)
+    {
+        await _questionnaireService.CreateQuestionnaireAsync(supplierId);
+    }
+
 }

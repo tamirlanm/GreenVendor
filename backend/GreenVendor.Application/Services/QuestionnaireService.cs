@@ -4,7 +4,6 @@ using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Exceptions;
 using GreenVendor.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using GreenVendor.Domain.Enums;
 namespace GreenVendor.Infrastructure.Services;
 
@@ -54,51 +53,9 @@ public class QuestionnaireService : IQuestionnaireService
 
     public async Task<EsgScoreResultDTO> SubmitQuestionnaireAsync(Guid supplierId, SubmitQuestionnaireRequest request)
     {
-        var questionnaire = await _db.Questionnaires.FirstOrDefaultAsync(q => q.SupplierId == supplierId);
-        bool isNew = questionnaire is null;
-        
-        if(questionnaire is not null && questionnaire.Status == Domain.Enums.QuestionnaireStatus.Submitted)
-        {
-            throw new BadRequestException("Questionnaire has already been submitted.");
-        }
-        
-        questionnaire ??= new Questionnaire
-        {
-            Id = Guid.NewGuid(),
-            SupplierId = supplierId,
-            Status = Domain.Enums.QuestionnaireStatus.InProgress,
-            CreatedAt = DateTime.UtcNow
-        };
+        var questionnaire = await GetQuestionnaireForSubmitAsync(supplierId);
+        var scoringInput = await ReplaceAnswerAsync(questionnaire.Id, request.Answers);
 
-        var questionIds = request.Answers.Select(a => a.QuestionId).ToList();
-        var questions = await _db.Questions.Where(q => questionIds.Contains(q.Id)).ToDictionaryAsync(q => q.Id);
-
-        var scoringInput = new List<(decimal pointsEarned, decimal weight, QuestionCategory category)>();
-        var answerEntities = new List<QuestionnaireAnswer>();
-
-        foreach(var answer in request.Answers)
-        {
-            if(!questions.TryGetValue(answer.QuestionId, out var question))
-            {
-                throw new NotFoundException($"Question {answer.QuestionId} not found.");
-            }
-
-            var options = JsonSerializer.Deserialize<List<OptionItem>>(question.OptionsJson, JsonOptions) ?? [];
-            var selected = options.FirstOrDefault(o => o.Text == answer.SelectedOption);
-            if(selected is null)
-            {
-                throw new BadRequestException($"\"{answer.SelectedOption}\" is not a valid option for question {answer.QuestionId}.");
-            }
-
-            scoringInput.Add((selected.Points, question.Weight, question.Category));
-            answerEntities.Add(new QuestionnaireAnswer
-            {
-                Id = Guid.NewGuid(),
-                QuestionId = question.Id,
-                QuestionnaireId = questionnaire.Id,
-                PointsEarned = selected.Points
-            });
-        }
 
         var result = _esgScoringService.Calculate(scoringInput);
 
@@ -119,13 +76,7 @@ public class QuestionnaireService : IQuestionnaireService
         questionnaire.SubmittedAt = DateTime.UtcNow;
         questionnaire.Score = esgScore;
 
-        if (isNew)
-        {
-            _db.Questionnaires.Add(questionnaire);
-        }
-
-        _db.QuestionnaireAnswers.AddRange(answerEntities);
-
+        
         var supplierProfile = await _db.SupplierProfiles.FirstAsync(s => s.Id == supplierId);
         supplierProfile.LatestScore = esgScore;
 
@@ -137,6 +88,84 @@ public class QuestionnaireService : IQuestionnaireService
             EsgGrade = result.Grade
         };
     }
+
+    private async Task<Questionnaire> GetQuestionnaireForSubmitAsync(Guid supplierId)
+    {
+        var questionnaire = await _db.Questionnaires.FirstOrDefaultAsync(q => q.SupplierId == supplierId);
+        if(questionnaire is null)
+        {
+            throw new BadRequestException("You have not yet been assigned a survey.");
+        }
+        if(questionnaire.Status == QuestionnaireStatus.Submitted)
+        {
+            throw new BadRequestException("Questionnaire has already been submitted.");
+        }
+        return questionnaire;
+    }
+
+    private async Task<List<(decimal pointsEarned, decimal weight, QuestionCategory category)>> ReplaceAnswerAsync(Guid questionnaireId, List<UserAnswerDTO> requestAnswers)
+    {
+        var existing = await _db.QuestionnaireAnswers.Where(a => a.QuestionnaireId == questionnaireId).ToListAsync();
+        _db.QuestionnaireAnswers.RemoveRange(existing);
+
+        var questionsId = requestAnswers.Select(a => a.QuestionId).ToList();
+        var questions = await _db.Questions.Where(q => questionsId.Contains(q.Id)).ToDictionaryAsync(q => q.Id);
+
+        var scoringInput = new List<(decimal pointsEarned, decimal weight, QuestionCategory category)>();
+
+        foreach(var answer in requestAnswers)
+        {
+            if(!questions.TryGetValue(answer.QuestionId, out var question))
+            {
+                throw new NotFoundException($"Question {answer.QuestionId} not found.");
+            }
+
+            var options = JsonSerializer.Deserialize<List<OptionItem>>(question.OptionsJson, JsonOptions) ?? [];
+            var selected = options.FirstOrDefault(o => o.Text == answer.SelectedOption);
+
+            if(selected is null)
+            {
+                throw new BadRequestException($"\"{answer.SelectedOption}\" is not a valid option for question {answer.QuestionId}");
+            }
+
+            scoringInput.Add((selected.Points, question.Weight, question.Category));
+            _db.QuestionnaireAnswers.Add(new QuestionnaireAnswer
+            {
+                Id = Guid.NewGuid(),
+                QuestionId = question.Id,
+                QuestionnaireId = questionnaireId,
+                PointsEarned = selected.Points
+            });
+        }
+
+        return scoringInput;
+    }
+
+    public async Task CreateQuestionnaireAsync(Guid supplierId)
+    {
+        var supplierExists = await _db.SupplierProfiles.AnyAsync(s => s.Id == supplierId);
+        if (!supplierExists)
+        {
+            throw new NotFoundException($"Supplier with Id={supplierId} not found.");
+        }
+
+        var exists = await _db.Questionnaires.AnyAsync(q => q.SupplierId == supplierId);
+        if (exists)
+        {
+            throw new BadRequestException("Questionnaire already exists for this supplier.");
+        }
+
+        _db.Questionnaires.Add(new Questionnaire
+        {
+            Id = Guid.NewGuid(),
+            SupplierId = supplierId,
+            Status = QuestionnaireStatus.InProgress,
+            CreatedAt = DateTime.UtcNow
+        });
+
+        await _db.SaveChangesAsync();
+    }
+
     private static readonly JsonSerializerOptions JsonOptions = new() {PropertyNameCaseInsensitive = true};
     private record OptionItem(string Text, decimal Points);
 

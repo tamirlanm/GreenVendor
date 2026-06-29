@@ -70,6 +70,16 @@ public class SupplierService : ISupplierService
         };
     }
 
+    public async Task<Guid> GetMySupplierIdAsync(Guid userId)
+    {
+        var supplier = await _db.SupplierProfiles.FirstOrDefaultAsync(s => s.UserId == userId);
+        if(supplier is null)
+        {
+            throw new NotFoundException("Supplier profile not found for this user.");
+        }
+        return supplier.Id;
+    }
+
     public async Task<SupplierDetailsResponse?> UpdateSupplierAsync(Guid id, UpdateSupplierRequest request)
     {
         var validatorResult = await _validator.ValidateAsync(request);
@@ -120,7 +130,7 @@ public class SupplierService : ISupplierService
         }
 
         var uniqueFileName = $"{Guid.NewGuid()}{extension}";   
-        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "ProtectedStorage", "Certificates");
+        var folderPath = GetCertificateFolderPath();
         var filePath = Path.Combine(folderPath, uniqueFileName);
 
         if (!Directory.Exists(folderPath))
@@ -137,6 +147,40 @@ public class SupplierService : ISupplierService
         await _db.SaveChangesAsync();
         return true;
     }
+
+    public async Task<(Stream FileStream, string ContentType, string FileName)> GetCertificateAsync(Guid supplierId)
+    {
+        var supplier = await _db.SupplierProfiles.FirstOrDefaultAsync(s => s.Id == supplierId);
+        if(supplier is null)
+        {
+            throw new NotFoundException($"Supplier with Id={supplierId} not found");
+        }
+        if (string.IsNullOrWhiteSpace(supplier.CertificatePath))
+        {
+            throw new NotFoundException("This supplier has not uploaded a certificate yet.");
+        }
+        var filePath = Path.Combine(GetCertificateFolderPath(), supplier.CertificatePath);
+
+        if (!File.Exists(filePath))
+        {
+            throw new NotFoundException("Certificate file is missing from storage.");
+        }
+
+        var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        var contentType = GetContentType(supplier.CertificatePath);
+        return (stream, contentType, supplier.CertificatePath);
+    }
+    
+    private static string GetCertificateFolderPath() => Path.Combine(Directory.GetCurrentDirectory(), "ProtectedStorage", "Certificates");
+
+    private static string GetContentType(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
+    {
+        ".pdf" => "application/pdf",
+        ".jpg" or ".jpeg" => "image/jpeg",
+        ".png" => "image/png",
+        ".pem" or ".crt" or ".cer" or ".der" => "application/x-x509-ca-cert",
+        _ => "application/octet-stream" 
+    };
     
     private string ValidateCertificate(Stream fileStream, string fileName)
     {

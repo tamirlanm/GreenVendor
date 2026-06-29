@@ -6,4 +6,5 @@ public interface IAdminService
     Task<IEnumerable<SupplierCatalogItemResponse>> GetSuppliersAdminAsync();
     Task<SupplierDetailsResponse?> VerifySupplierAsync(Guid id);
     Task<PlatformAnalyticsDTO> GetAnalyticsAsync();
+    Task CreateQuestionnaireForSupplierAsync(Guid supplierId);
 }
