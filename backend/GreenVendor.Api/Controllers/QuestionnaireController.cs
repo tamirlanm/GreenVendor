@@ -1,3 +1,4 @@
+using GreenVendor.Api.Extensions;
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -11,9 +12,11 @@ namespace GreenVendor.Api.Controllers;
 public class QuestionnaireController : ControllerBase
 {
     private readonly IQuestionnaireService _questionnaireService;
-    public QuestionnaireController(IQuestionnaireService questionnaireService)
+    private readonly ISupplierService _supplierService;
+    public QuestionnaireController(IQuestionnaireService questionnaireService, ISupplierService supplierService)
     {
         _questionnaireService = questionnaireService;
+        _supplierService = supplierService;
     }
 
     [HttpGet("questions")]
@@ -24,21 +27,20 @@ public class QuestionnaireController : ControllerBase
     }
 
     [HttpGet("my")]
-    public async Task<ActionResult<QuestionnaireStatusDTO>> GetMyStatus([FromQuery] string? testStatus = null)
+    public async Task<ActionResult<QuestionnaireStatusDTO>> GetMyStatus()
     {
-        Guid currentSupplierId = testStatus?.ToLower() == "inprogress" ? Guid.Empty : Guid.NewGuid();
+        // var supplier = User.GetUserId();
+        var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
+        var status = await _questionnaireService.GetMyQuestionnaireStatusAsync(supplierId);
 
-        var status = await _questionnaireService.GetMyQuestionnaireStatusAsync(currentSupplierId);
-        if(status is null)
-        {
-            return NotFound(new {message = "Questionnaire for this supplier not found."});
-        }
         return Ok(status);
     }
 
     [HttpPost("submit")]
-    public async Task<ActionResult<EsgScoreResultDTO>> SubmitQuestionnaire(Guid supplierId,[FromBody] SubmitQuestionnaireRequest request)
+    public async Task<ActionResult<EsgScoreResultDTO>> SubmitQuestionnaire([FromBody] SubmitQuestionnaireRequest request)
     {
+        // var supplier = User.GetUserId();
+        var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
         var supplierQuestionnaireResult = await _questionnaireService.SubmitQuestionnaireAsync(supplierId, request);
         return Ok(supplierQuestionnaireResult);
     }
