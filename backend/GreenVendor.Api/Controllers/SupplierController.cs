@@ -50,7 +50,7 @@ public class SupplierController : ControllerBase
     }
 
     [Authorize(Roles = "Supplier")]
-    [HttpPost("submit")]
+    [HttpPost("certificate")]
     public async Task<IActionResult> UploadCertificate([FromForm] IFormFile file)
     {
         var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
