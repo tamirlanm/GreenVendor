@@ -12,6 +12,7 @@ namespace GreenVendor.Api.Controllers;
 public class AdminController : ControllerBase
 {
     private readonly IAdminService _adminService;
+
     public AdminController(IAdminService adminService)
     {
         _adminService = adminService;
@@ -28,10 +29,6 @@ public class AdminController : ControllerBase
     public async Task<ActionResult<SupplierDetailsResponse>> VerifySupplier([FromRoute] Guid id)
     {
         var response = await _adminService.VerifySupplierAsync(id);
-        if(response is null)
-        {
-            return NotFound(new {message = $"Supplier with this Id={id} not found"});
-        }
         return Ok(response);
     }
 
@@ -40,5 +37,12 @@ public class AdminController : ControllerBase
     {
         var platformAnalytics = await _adminService.GetAnalyticsAsync();
         return Ok(platformAnalytics);
+    }
+
+    [HttpPost("suppliers/{id}/questionnaire")]
+    public async Task<IActionResult> CreateQuestionnaire([FromRoute(Name = "id")] Guid supplierid)
+    {
+        await _adminService.CreateQuestionnaireForSupplierAsync(supplierid);
+        return Ok();
     }
 }

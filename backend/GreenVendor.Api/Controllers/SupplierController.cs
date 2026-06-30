@@ -2,14 +2,15 @@ using Microsoft.AspNetCore.Mvc;
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using GreenVendor.Api.Extensions;
 namespace GreenVendor.Api.Controller;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SuppliersController : ControllerBase
+public class SupplierController : ControllerBase
 {
     private readonly ISupplierService _supplierService;
-    public SuppliersController(ISupplierService supplierService)
+    public SupplierController(ISupplierService supplierService)
     {
         _supplierService = supplierService;
     }
@@ -25,10 +26,6 @@ public class SuppliersController : ControllerBase
     public async Task<ActionResult<SupplierDetailsResponse>> GetSupplier([FromRoute] Guid id)
     {
         var response = await _supplierService.GetSupplierDetailsAsync(id);
-        if(response is null)
-        {
-            return NotFound(new {message = $"Supplier with Id={id} not found."});
-        }
         return Ok(response);
     }
 
@@ -36,8 +33,9 @@ public class SuppliersController : ControllerBase
     [HttpGet("me")]
     public async Task<ActionResult<SupplierDetailsResponse>> GetMyProfile()
     {
-        Guid currentSupplierId = Guid.NewGuid();
-        var response = await _supplierService.GetSupplierDetailsAsync(currentSupplierId);
+        // var supplier = User.GetUserId();
+        var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
+        var response = await _supplierService.GetSupplierDetailsAsync(supplierId);
         return Ok(response);
     }
 
@@ -45,31 +43,29 @@ public class SuppliersController : ControllerBase
     [HttpPut("me")]
     public async Task<ActionResult<SupplierDetailsResponse>> UpdateMyProfile([FromBody] UpdateSupplierRequest request)
     {
-        Guid currentSupplierId = Guid.NewGuid();
-        var response = await _supplierService.UpdateSupplierAsync(currentSupplierId,request);
-        if(response is null)
-        {
-            return NotFound(new {message = $"Supplier not found."});
-        }
+        // var supplier = User.GetUserId();
+        var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
+        var response = await _supplierService.UpdateSupplierAsync(supplierId, request);
         return Ok(response);
     }
 
     [Authorize(Roles = "Supplier")]
     [HttpPost("submit")]
-    public async Task<ActionResult> UploadCertificate([FromForm] IFormFile file)
+    public async Task<IActionResult> UploadCertificate([FromForm] IFormFile file)
     {
-        if(file == null || file.Length == 0)
-        {
-            return BadRequest(new {message = "File certificate not selected or empty."});
-        }
-        Guid currentSupplierId = Guid.NewGuid();
-
+        var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
         using var stream = file.OpenReadStream();
-        var isUploaded = await _supplierService.UploadCertificateAsync(currentSupplierId, stream, file.FileName);
-        if (!isUploaded)
-        {
-            return BadRequest(new {message = "Couldn't upload certificate."});
-        }
+        var isUploaded = await _supplierService.UploadCertificateAsync(supplierId, stream, file.FileName);
+    
         return Ok(new {message = "Certificate successfully uploaded"});
+    }
+    
+    [Authorize]
+    [HttpGet("{supplierId}/certificate")]
+    public async Task<IActionResult> GetCertificate(Guid supplierId)
+    {
+        var supplier = await _supplierService.GetCertificateAsync(supplierId);
+
+        return File(supplier.FileStream, supplier.ContentType, supplier.FileName);
     }
 }
