@@ -92,7 +92,7 @@ public class SupplierService : ISupplierService
         var supplierExists = await _db.SupplierProfiles.Include(s => s.User).FirstOrDefaultAsync(s => s.Id == id);
         if(supplierExists is null)
         {
-            throw new NotFoundException("Supplier Id={id} is not found");
+            throw new NotFoundException($"Supplier Id={id} is not found");
         }
 
         supplierExists.CompanyName = request.CompanyName;
