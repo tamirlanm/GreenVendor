@@ -10,6 +10,9 @@ using System.Text;
 using Microsoft.OpenApi;
 using GreenVendor.Application.Services;
 using GreenVendor.Api.Middleware;
+using FluentValidation;
+using GreenVendor.Application.DTOs;
+using GreenVendor.Application.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");  
@@ -80,6 +83,11 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
+builder.Services.AddScoped<IEsgScoringService, EsgScoringService>();
+builder.Services.AddScoped<IBuyerService, BuyerService>();
+builder.Services.AddScoped<IValidator<UpdateSupplierRequest>, UpdateSupplierValidator>();
+builder.Services.AddScoped<IValidator<UpdateBuyerRequest>, UpdateBuyerValidator>(); 
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateSupplierRequest>();
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
@@ -94,7 +102,7 @@ if (app.Environment.IsDevelopment())
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     });
 }
-
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
