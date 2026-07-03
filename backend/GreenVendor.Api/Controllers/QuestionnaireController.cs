@@ -29,7 +29,6 @@ public class QuestionnaireController : ControllerBase
     [HttpGet("my")]
     public async Task<ActionResult<QuestionnaireStatusDTO>> GetMyStatus()
     {
-        // var supplier = User.GetUserId();
         var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
         var status = await _questionnaireService.GetMyQuestionnaireStatusAsync(supplierId);
 
@@ -39,7 +38,6 @@ public class QuestionnaireController : ControllerBase
     [HttpPost("submit")]
     public async Task<ActionResult<EsgScoreResultDTO>> SubmitQuestionnaire([FromBody] SubmitQuestionnaireRequest request)
     {
-        // var supplier = User.GetUserId();
         var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
         var supplierQuestionnaireResult = await _questionnaireService.SubmitQuestionnaireAsync(supplierId, request);
         return Ok(supplierQuestionnaireResult);
