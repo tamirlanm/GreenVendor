@@ -124,13 +124,14 @@ public class ProductService : IProductService
 
         var newProduct = new Product
         {
-            SupplierId = supplier.Id,
+            Id = Guid.NewGuid(),
             Name = request.Name,
             Description = request.Description,
             Category = parsedCategory,
             Price = request.Price,
             IsActive = request.IsActive,
             CreatedAt = DateTime.UtcNow,
+            SupplierId = supplier.Id,
             Supplier = supplier
         };
 
@@ -147,7 +148,7 @@ public class ProductService : IProductService
             Price = newProduct.Price,
             IsActive = newProduct.IsActive,
             CreatedAt = newProduct.CreatedAt,
-            Supplier = newProduct.Supplier.CompanyName    
+            Supplier = supplier.CompanyName    
         };
         return response;
     }
@@ -176,14 +177,11 @@ public class ProductService : IProductService
 
         Enum.TryParse<ProductCategory>(request.Category, ignoreCase: true, out var parsedCategory);
         
-        productExists.Id = request.Id;
-        productExists.SupplierId = supplier.Id;
         productExists.Name = request.Name;
         productExists.Description = request.Description;
         productExists.Category = parsedCategory;
         productExists.Price = request.Price;
         productExists.IsActive = request.IsActive;
-        productExists.Supplier = supplier;
 
         await _db.SaveChangesAsync();
         var response = new ProductResponse
@@ -196,7 +194,7 @@ public class ProductService : IProductService
             Price = productExists.Price,
             IsActive = productExists.IsActive,
             CreatedAt = productExists.CreatedAt,
-            Supplier = productExists.Supplier.CompanyName    
+            Supplier = supplier.CompanyName    
         };
         return response;
     }
