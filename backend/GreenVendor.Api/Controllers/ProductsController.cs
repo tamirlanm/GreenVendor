@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GreenVendor.Api.Controllers;
 [ApiController]
-[Route("api/[controller]")]
-public class ProductController : ControllerBase
+[Route("api/products")]
+public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
     private readonly ISupplierService _supplierService;
-    public ProductController(IProductService productService, ISupplierService supplierService)
+    public ProductsController(IProductService productService, ISupplierService supplierService)
     {
         _productService = productService;
         _supplierService = supplierService;
@@ -34,7 +34,7 @@ public class ProductController : ControllerBase
     }
 
     [Authorize(Roles = "Supplier")]
-    [HttpGet("suppliers/me/products")]
+    [HttpGet("/api/suppliers/me/products")]
     public async Task<ActionResult<SupplierProductsCatalog>> GetMyProducts([FromQuery] int pageSize, [FromQuery] int pageNumber)
     {
         var supplier = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
@@ -43,7 +43,7 @@ public class ProductController : ControllerBase
     }
 
     [Authorize(Roles = "Supplier")]
-    [HttpPost("suppliers/me/products")]
+    [HttpPost("/api/suppliers/me/products")]
     public async Task<ActionResult<ProductResponse>> CreateProduct([FromBody] CreateProductRequest request)
     {
         var supplier = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
@@ -52,7 +52,7 @@ public class ProductController : ControllerBase
     }
 
     [Authorize(Roles = "Supplier")]
-    [HttpPut("suppliers/me/products/{id}")]
+    [HttpPut("/api/suppliers/me/products/{id}")]
     public async Task<ActionResult<ProductResponse>> UpdateProduct(Guid id, [FromBody] UpdateProductRequest request)
     {
         var supplier = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
@@ -61,7 +61,7 @@ public class ProductController : ControllerBase
     }
 
     [Authorize(Roles = "Supplier")]
-    [HttpDelete("suppliers/me/products/{id}")]
+    [HttpDelete("/api/suppliers/me/products/{id}")]
     public async Task<IActionResult> DeleteProduct(Guid id)
     {
         var supplier = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
