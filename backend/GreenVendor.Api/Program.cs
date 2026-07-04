@@ -86,10 +86,12 @@ builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 builder.Services.AddScoped<IEsgScoringService, EsgScoringService>();
 builder.Services.AddScoped<IBuyerService, BuyerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IValidator<CreateProductRequest>, CreateProductValidator>();
 builder.Services.AddScoped<IValidator<UpdateProductRequest>, UpdateProductValidator>();
 builder.Services.AddScoped<IValidator<UpdateSupplierRequest>, UpdateSupplierValidator>();
-builder.Services.AddScoped<IValidator<UpdateBuyerRequest>, UpdateBuyerValidator>(); 
+builder.Services.AddScoped<IValidator<UpdateBuyerRequest>, UpdateBuyerValidator>();
+builder.Services.AddScoped<IValidator<CreateOrderRequest>, CreateOrderValidator>(); 
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateSupplierRequest>();
 var app = builder.Build();
 
