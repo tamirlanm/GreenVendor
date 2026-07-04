@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Interfaces;
 
-namespace GreenVendor.Api.Controller;
+namespace GreenVendor.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

@@ -3,7 +3,7 @@ using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using GreenVendor.Api.Extensions;
-namespace GreenVendor.Api.Controller;
+namespace GreenVendor.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
