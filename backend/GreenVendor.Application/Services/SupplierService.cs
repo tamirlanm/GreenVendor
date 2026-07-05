@@ -1,4 +1,4 @@
-namespace GreenVendor.Infrastructure.Services;
+namespace GreenVendor.Application.Services;
 
 using System.Reflection.Metadata.Ecma335;
 using FluentValidation;

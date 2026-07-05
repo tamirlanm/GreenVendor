@@ -5,7 +5,7 @@ using GreenVendor.Application.Exceptions;
 using GreenVendor.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GreenVendor.Domain.Enums;
-namespace GreenVendor.Infrastructure.Services;
+namespace GreenVendor.Application.Services;
 
 public class QuestionnaireService : IQuestionnaireService
 {
