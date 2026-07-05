@@ -13,6 +13,7 @@ using GreenVendor.Api.Middleware;
 using FluentValidation;
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Validators;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");  
@@ -100,7 +101,20 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    const int maxRetries = 10;
+    for(var attemp = 1; attemp <= 10; attemp++)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch(SqlException ex) when (attemp < maxRetries)
+        {
+            app.Logger.LogWarning(ex, "Database is not ready yet. Retry {Attemp}/{MaxRetries}", attemp, maxRetries);
+            await Task.Delay(TimeSpan.FromSeconds(3));
+        }
+    }
 }
 
 // Configure the HTTP request pipeline.

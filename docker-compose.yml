@@ -7,8 +7,11 @@ services:
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "GreenVendor@123Password"
+    volumes:
+      - mssql_data:/var/opt/mssql
     networks:
       - gv_net
+    
       
   api:
     build:
@@ -18,6 +21,7 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=GreenVendorDb;User Id=sa;Password=GreenVendor@123Password;TrustServerCertificate=True;
     depends_on:
       - db
     networks:
@@ -41,3 +45,5 @@ networks:
 
 volumes:
   frontend_dist:
+  mssql_data:
+
