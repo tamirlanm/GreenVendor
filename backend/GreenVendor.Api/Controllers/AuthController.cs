@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Interfaces;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace GreenVendor.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("auth-limit")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;

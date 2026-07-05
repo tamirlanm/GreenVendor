@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GreenVendor.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class dommodelsupdate : Migration
+    public partial class domModelsUpdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

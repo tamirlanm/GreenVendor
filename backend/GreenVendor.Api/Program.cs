@@ -14,11 +14,36 @@ using FluentValidation;
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Validators;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");  
 
 builder.Services.AddControllers();
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("general-limit", context =>
+    {
+        var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(remoteIp, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 100,
+            Window = TimeSpan.FromSeconds(60)
+        });
+    });
+
+    options.AddPolicy("auth-limit", context =>
+    {
+        var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(remoteIp, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromSeconds(60)
+        });
+    });
+});
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(connectionString));
 builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
@@ -98,20 +123,25 @@ var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     const int maxRetries = 10;
-    for(var attemp = 1; attemp <= 10; attemp++)
+    for(var attempt = 1; attempt <= maxRetries; attempt++)
     {
         try
         {
             db.Database.Migrate();
             break;
         }
-        catch(SqlException ex) when (attemp < maxRetries)
+        catch(SqlException ex) when (attempt < maxRetries)
         {
-            app.Logger.LogWarning(ex, "Database is not ready yet. Retry {Attemp}/{MaxRetries}", attemp, maxRetries);
+            app.Logger.LogWarning(ex, "Database is not ready yet. Retry {Attempt}/{MaxRetries}", attempt, maxRetries);
             await Task.Delay(TimeSpan.FromSeconds(3));
         }
     }
@@ -128,12 +158,18 @@ if (app.Environment.IsDevelopment())
         .WithOpenApiRoutePattern("/api/openapi/{documentName}.json");
     });
 }
+
+app.UseRateLimiter();
+
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseHttpsRedirection();
-app.MapControllers();
+if(!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+app.MapControllers().RequireRateLimiting("general-limit");
 
 app.Run();
 
