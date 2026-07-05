@@ -20,31 +20,66 @@ public class ProductService : IProductService
         _validatorCreate = validatorCreate;
     }
 
-    public async Task<PagedResult<ProductsCatalog>> GetProductsAsync(int pageSize, int pageNumber)
+    public async Task<PagedResult<ProductsCatalog>> GetProductsAsync(ProductQuery query)
     {
-        if(pageNumber <= 0) pageNumber = 1;
-        if(pageSize <= 0) pageSize = 10;
+        var queryable = _db.Products.Include(p => p.Supplier).AsQueryable();
 
+        if (!string.IsNullOrWhiteSpace(query.Name))
+        {
+            queryable = queryable.Where(p => p.Name.Contains(query.Name));
+        }
 
-        var totalProducts = await _db.Products.CountAsync();
-        var skipElements = (pageNumber - 1) * pageSize;
+        if(!string.IsNullOrWhiteSpace(query.Category) && Enum.TryParse<ProductCategory>(query.Category, ignoreCase: true, out var parsedCategory))
+        {
+            queryable = queryable.Where(p => p.Category == parsedCategory);
+        }
 
-        var items = await _db.Products.Include(p => p.Supplier).Skip(skipElements).Take(pageSize)
+        if (query.MinPrice.HasValue)
+        {
+            queryable = queryable.Where(p => p.Price >= query.MinPrice.Value);
+        }
+
+        if (query.MaxPrice.HasValue)
+        {
+            queryable = queryable.Where(p => p.Price <= query.MaxPrice.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.MinEsgGrade))
+        {
+            var minScore = query.MinEsgGrade.ToUpperInvariant() switch
+            {
+                "A" => 85m,
+                "B" => 70m,
+                "C" => 55m,
+                "D" => 40m,
+                "F" => 0m,
+                _ => (decimal?) null
+            };
+            if (minScore.HasValue)
+            {
+                queryable = queryable.Where(p => p.Supplier.LatestScore != null && p.Supplier.LatestScore.Total >= minScore.Value);
+            }
+        }
+
+        var totalProducts = await queryable.CountAsync();
+
+        var items = await queryable.OrderBy(p => p.Name)
+            .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
             .Select(p => new ProductsCatalog
-            {   
+            {
                 Id = p.Id,
                 SupplierId = p.SupplierId,
                 Name = p.Name,
-                CompanyName = p.Supplier.CompanyName,
                 ProductCategory = p.Category.ToString(),
-                Price = p.Price
+                Price = p.Price,
             }).ToListAsync();
+
             
         return new PagedResult<ProductsCatalog>
         {
             Items = items,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
+            PageNumber = query.Page,
+            PageSize = query.PageSize,
             TotalCount = totalProducts
         };
     }
@@ -71,10 +106,8 @@ public class ProductService : IProductService
         };
     }
 
-    public async Task<PagedResult<SupplierProductsCatalog>> GetMyProductsAsync(Guid supplierId, int pageNumber, int pageSize)
+    public async Task<PagedResult<SupplierProductsCatalog>> GetMyProductsAsync(Guid supplierId, ProductQuery query)
     {
-        if(pageNumber <= 0) pageNumber = 1;
-        if(pageSize <= 0) pageSize = 10;
 
         var supplier = await _db.SupplierProfiles.FirstOrDefaultAsync(s => s.Id == supplierId);
         if(supplier is null)
@@ -82,12 +115,35 @@ public class ProductService : IProductService
             throw new NotFoundException($"Supplier with Id={supplierId} not found.");
         }
 
-        var totalProducts = await _db.Products.CountAsync(p => p.SupplierId == supplierId);
+        var queryable = _db.Products.AsQueryable();
 
-        var skipElements = (pageNumber - 1) * pageSize;
+        queryable = queryable.Where(p => p.SupplierId == supplierId);
 
-        var items = await _db.Products.Where(p => p.SupplierId == supplierId).
-            Skip(skipElements).Take(pageSize).Select(p => new SupplierProductsCatalog
+        if (!string.IsNullOrWhiteSpace(query.Name))
+        {
+            queryable = queryable.Where(p => p.Name.Contains(query.Name));
+        }
+
+        if(!string.IsNullOrWhiteSpace(query.Category) && Enum.TryParse<ProductCategory>(query.Category, ignoreCase: true, out var parsedCategory))
+        {
+            queryable = queryable.Where(p => p.Category == parsedCategory);
+        }
+
+        if (query.MinPrice.HasValue)
+        {
+            queryable = queryable.Where(p => p.Price >= query.MinPrice.Value);
+        }
+
+        if (query.MaxPrice.HasValue)
+        {
+            queryable = queryable.Where(p => p.Price <= query.MaxPrice.Value);
+        }
+
+        var totalProducts = await queryable.CountAsync();
+
+        var items = await queryable.OrderBy(p => p.Name)
+            .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
+            .Select(p => new SupplierProductsCatalog
             {
                 Id = p.Id,
                 SupplierId = p.SupplierId,
@@ -99,8 +155,8 @@ public class ProductService : IProductService
         return new PagedResult<SupplierProductsCatalog>
         {
             Items = items,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
+            PageNumber = query.Page,
+            PageSize = query.PageSize,
             TotalCount = totalProducts
         };
     } 

@@ -19,9 +19,9 @@ public class ProductsController : ControllerBase
 
     [Authorize(Roles = "Buyer")]
     [HttpGet("")]
-    public async Task<ActionResult<PagedResult<ProductsCatalog>>> GetProducts([FromQuery] int pageSize, [FromQuery] int pageNumber)
+    public async Task<ActionResult<PagedResult<ProductsCatalog>>> GetProducts([FromQuery] ProductQuery query)
     {
-        var response = await _productService.GetProductsAsync(pageSize, pageNumber);
+        var response = await _productService.GetProductsAsync(query);
         return Ok(response);
     }
 
@@ -35,10 +35,10 @@ public class ProductsController : ControllerBase
 
     [Authorize(Roles = "Supplier")]
     [HttpGet("/api/suppliers/me/products")]
-    public async Task<ActionResult<SupplierProductsCatalog>> GetMyProducts([FromQuery] int pageSize, [FromQuery] int pageNumber)
+    public async Task<ActionResult<SupplierProductsCatalog>> GetMyProducts([FromQuery] ProductQuery query)
     {
         var supplier = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
-        var response = await _productService.GetMyProductsAsync(supplier, pageSize, pageNumber);
+        var response = await _productService.GetMyProductsAsync(supplier, query);
         return Ok(response);
     }
 
