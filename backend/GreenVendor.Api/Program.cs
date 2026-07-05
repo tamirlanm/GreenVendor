@@ -100,11 +100,12 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference(options =>
+    app.MapOpenApi("/api/openapi/{documentName}.json");
+    app.MapScalarApiReference( "/api/docs", options =>
     {
         options.WithTitle("GreenVendor Api").WithTheme(ScalarTheme.DeepSpace)
-        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+        .WithOpenApiRoutePattern("/api/openapi/{documentName}.json");
     });
 }
 app.UseStaticFiles();
