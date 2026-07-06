@@ -2,6 +2,8 @@ import { Link, Outlet } from 'react-router-dom'
 // Import CSS Modules styling object
 import styles from './Layout.module.css' 
 
+import logoImg from '../icons/logo.png'
+
 export function Layout() {
   return (
     <div className={styles.appContainer}>
@@ -9,7 +11,7 @@ export function Layout() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <Link to="/" className={styles.logoGroup}>
-            <div className={styles.logoIcon}>G</div>
+            <img src={logoImg} alt='GreenVendor Logo' className={styles.logoImage} />
             <div className={styles.logoText}>Green<span>Vendor</span></div>
           </Link>
           

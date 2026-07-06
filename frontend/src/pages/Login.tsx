@@ -35,7 +35,7 @@ export function Login() {
                             <div className={styles.benefitNumber}>2</div>
                             <div className={styles.benefitText}>
                                 <h3>Smart Matching</h3>
-                                <p>Let our ML service match you with suppliers that fit your business needs.</p>
+                                <p>Let our website match you with suppliers that fit your business needs.</p>
                             </div>
                         </div>
 

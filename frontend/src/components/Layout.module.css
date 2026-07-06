@@ -30,17 +30,10 @@
     text-decoration: none;
 }
 
-.logoIcon {
-    width: 2rem;
-    height: 2rem;
-    background-color: var(--primary);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 800;
-    font-size: 1.1rem;
+.logoImage {
+    height: 2.25rem;
+    width: auto;
+    object-fit: contain;
 }
 
 .logoText {
