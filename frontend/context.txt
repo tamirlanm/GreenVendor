@@ -1,0 +1,176 @@
+import { useState } from 'react';
+
+// 1. Define a strict TypeScript type for our roles
+type UserRole = 'Buyer' | 'Supplier' | 'Admin';
+
+// 2. Blueprint for what a User session object must look like
+interface UserSession {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  companyName?: string; // Optional field, since Admins don't have companies
+}
+
+export default function App() {
+  // 3. React state to track the current logged-in user simulation
+  const [currentUser, setCurrentUser] = useState<UserSession>({
+    id: "usr-99",
+    name: "Dias Almaty",
+    email: "dias@logistics.kz",
+    role: "Supplier",
+    companyName: "EcoPack Kazakhstan"
+  });
+
+  // 4. A helper function to change roles on the fly to test our UI
+  const handleRoleSwitch = (newRole: UserRole) => {
+    setCurrentUser(prev => ({
+      ...prev,
+      role: newRole,
+      // Clear or add company name based on the role rules
+      companyName: newRole === 'Admin' ? undefined : 'GreenCorp Global'
+    }));
+  };
+
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      
+      {/* SIDEBAR NAVIGATION */}
+      <aside className="w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between">
+        <div>
+          <h2 className="text-xl font-bold tracking-wider mb-8">🌱 GreenVendor</h2>
+          <nav className="space-y-3">
+            <span className="block text-xs uppercase text-emerald-300 tracking-widest font-semibold mb-2">
+              {currentUser.role} Workspace
+            </span>
+            
+            {/* Conditional Navigation Links based on TypeScript Roles */}
+            {currentUser.role === 'Supplier' && (
+              <>
+                <a href="#inventory" className="block px-3 py-2 rounded bg-emerald-800 font-medium">📦 Product CRUD</a>
+                <a href="#orders" className="block px-3 py-2 rounded hover:bg-emerald-800 transition">📥 Incoming Orders</a>
+                <a href="#score" className="block px-3 py-2 rounded hover:bg-emerald-800 transition">📊 ESG Score Sheet</a>
+              </>
+            )}
+
+            {currentUser.role === 'Buyer' && (
+              <>
+                <a href="#catalog" className="block px-3 py-2 rounded bg-emerald-800 font-medium">🔍 Green Catalog</a>
+                <a href="#history" className="block px-3 py-2 rounded hover:bg-emerald-800 transition">📜 Order History</a>
+                <a href="#ai" className="block px-3 py-2 rounded hover:bg-emerald-800 transition">✨ ML Recommendations</a>
+              </>
+            )}
+
+            {currentUser.role === 'Admin' && (
+              <>
+                <a href="#verify" className="block px-3 py-2 rounded bg-emerald-800 font-medium">⚖️ Verify Suppliers</a>
+                <a href="#analytics" className="block px-3 py-2 rounded hover:bg-emerald-800 transition">📈 Platform Analytics</a>
+              </>
+            )}
+          </nav>
+        </div>
+
+        {/* User Info Capsule */}
+        <div className="border-t border-emerald-700 pt-4">
+          <p className="text-sm font-semibold">{currentUser.name}</p>
+          <p className="text-xs text-emerald-300">{currentUser.companyName || 'Platform Administrator'}</p>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 p-10">
+        <header className="flex justify-between items-center mb-8 border-b pb-4">
+          <h1 className="text-3xl font-bold text-gray-800">Dashboard Control Panel</h1>
+          
+          {/* SIMULATION CONTROLS */}
+          <div className="bg-white border p-2 rounded-lg flex gap-2 shadow-sm text-sm">
+            <span className="self-center font-medium px-2 text-gray-500">Simulate Role:</span>
+            <button 
+              onClick={() => handleRoleSwitch('Supplier')}
+              className={`px-3 py-1 rounded ${currentUser.role === 'Supplier' ? 'bg-emerald-600 text-white font-semibold' : 'hover:bg-gray-100'}`}
+            >
+              Supplier
+            </button>
+            <button 
+              onClick={() => handleRoleSwitch('Buyer')}
+              className={`px-3 py-1 rounded ${currentUser.role === 'Buyer' ? 'bg-emerald-600 text-white font-semibold' : 'hover:bg-gray-100'}`}
+            >
+              Buyer
+            </button>
+            <button 
+              onClick={() => handleRoleSwitch('Admin')}
+              className={`px-3 py-1 rounded ${currentUser.role === 'Admin' ? 'bg-emerald-600 text-white font-semibold' : 'hover:bg-gray-100'}`}
+            >
+              Admin
+            </button>
+          </div>
+        </header>
+
+        {/* WORKSPACE BODY SIMULATION */}
+        <section className="bg-white p-8 rounded-xl border shadow-sm">
+          <h3 className="text-lg font-bold text-gray-700 mb-2">Active view context:</h3>
+          <p className="text-sm text-gray-500 mb-4">
+            This module dynamically renders interface capabilities restricted to verified accounts under the <code className="bg-gray-100 px-1 py-0.5 rounded text-red-600">{currentUser.role}</code> schema structure.
+          </p>
+          
+          <div className="p-6 border border-dashed border-gray-300 rounded-lg bg-gray-50 text-center text-gray-600">
+            {currentUser.role === 'Supplier' && "📊 Supplier Module: Ready to parse ESG scores and submit product listings to the public endpoint."}
+            {currentUser.role === 'Buyer' && "🛒 Buyer Module: Ready to connect to the scikit-learn ML server to pull recommendation matrices."}
+            {currentUser.role === 'Admin' && "🛡️ Admin Module: Full verification override and database auditing metrics enabled."}
+          </div>
+        </section>
+      </main>
+
+    </div>
+  );
+}
+@import "tailwindcss";
+
+@theme {
+  --color-brand-600: #1f6f5c;   /* now usable as bg-brand-600, text-brand-600, border-brand-600 */
+  --color-canvas: #f7f5f0;      /* your warm background, not bg-slate-50 */
+  --radius-panel: 1.25rem;      /* one radius decision, not rounded-xl everywhere */
+}
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App'
+import './index.css'
+
+// Finds the <div id="root"> inside index.html and mounts React there
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+/// <reference types="vite/client" />
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenVendor Platform</title>
+  </head>
+  <body class="bg-gray-50 text-gray-900">
+    <div id="root"></div>
+    
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+export default {
+  plugins: {
+    // This tells PostCSS to use the modern v4 Tailwind compiler adapter
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+  },
+}
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}

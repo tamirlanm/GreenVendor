@@ -1,10 +1,10 @@
-import React from 'react'
+import '../styles/home.css'
 
-export default function Home() {
+export function Home() {
     return (
-        <section>
-            <h1>Home</h1>
-            <p>Welcome to GreenVendor. Discover sustainable suppliers and ESG insights</p>
-        </section>
+        <div className='home-container'>
+            <h1 className='home-title'> Welcome to GreenVendor</h1>
+            <p className='home-subtitle'>Find reliable ESG-rated suppliers instantly</p>
+        </div>
     )
 }
