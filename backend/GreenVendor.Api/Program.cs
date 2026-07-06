@@ -148,6 +148,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+
 app.MapHealthChecks("/health");
 
 // Configure the HTTP request pipeline.
