@@ -58,6 +58,15 @@ services:
     networks:
       - gv_net
 
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - gv_net
+  
 networks:
   gv_net:
 
