@@ -22,6 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");  
 
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("general-limit", context =>
@@ -146,6 +147,8 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
+
+app.MapHealthChecks("/health");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
