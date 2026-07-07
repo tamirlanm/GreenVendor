@@ -36,7 +36,6 @@ public class AuthServiceTests
     [Fact]
     public async Task RegisterAsync_ShouldThrowBadRequestException_WhenEmailAlreadyExists()
     {
-        // Arrange
         using var db = TestDbContextFactory.Create();
         db.Users.Add(new User {Id = Guid.NewGuid(), Email = "taken@test.com", PasswordHash = "hash", Role = Domain.Enums.UserRole.Buyer, CreatedAt = DateTime.UtcNow});
         await db.SaveChangesAsync();
@@ -44,7 +43,6 @@ public class AuthServiceTests
         var service = CreateService(db);
         var request = new RegisterRequest {Email = "taken@test.com", Password = "Pass123!", Role = "Buyer", CompanyName = "Acme", Industry = "Technology"};
 
-        // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => service.RegisterAsync(request));
     }
 
@@ -52,15 +50,12 @@ public class AuthServiceTests
     [Fact]
      public async Task RegisterAsync_ShouldCreateBuyerProfile_WhenRoleIsBuyer()
     {
-        // Arrange
         using var db = TestDbContextFactory.Create();
         var service = CreateService(db);
         var request = new RegisterRequest { Email = "buyer@test.com", Password = "Pass123!", Role = "Buyer", CompanyName = "Acme", Industry = "Technology" };
 
-        // Act
         var result = await service.RegisterAsync(request);
 
-        // Assert
         Assert.Equal(UserRole.Buyer, result.Role);
         Assert.Equal(1, await db.BuyerProfiles.CountAsync());
         Assert.Equal(0, await db.SupplierProfiles.CountAsync());
@@ -69,15 +64,12 @@ public class AuthServiceTests
     [Fact]
     public async Task RegisterAsync_ShouldCreateSupplierProfile_WhenRoleIsSupplier()
     {
-        // Arrange
         using var db = TestDbContextFactory.Create();
         var service = CreateService(db);
         var request = new RegisterRequest { Email = "supplier@test.com", Password = "Pass123!", Role = "Supplier", CompanyName = "EcoCorp", Industry = "Manufacturing" };
 
-        // Act
         var result = await service.RegisterAsync(request);
 
-        // Assert
         Assert.Equal(UserRole.Supplier, result.Role);
         Assert.Equal(1, await db.SupplierProfiles.CountAsync());
         Assert.Equal(0, await db.BuyerProfiles.CountAsync());
@@ -86,16 +78,13 @@ public class AuthServiceTests
     [Fact]
     public async Task RegisterAsync_ShouldHashPassword_NotStoreItInPlainText()
     {
-        // Arrange
         using var db = TestDbContextFactory.Create();
         var service = CreateService(db);
         var request = new RegisterRequest { Email = "secure@test.com", Password = "PlainPass123!", Role = "Buyer", CompanyName = "Acme", Industry = "Technology" };
 
-        // Act
         await service.RegisterAsync(request);
         var storedUser = await db.Users.FirstAsync(u => u.Email == "secure@test.com");
 
-        // Assert
         Assert.NotEqual("PlainPass123!", storedUser.PasswordHash);
         Assert.True(BCrypt.Net.BCrypt.EnhancedVerify("PlainPass123!", storedUser.PasswordHash));
     }
@@ -109,17 +98,13 @@ public class AuthServiceTests
         var service = CreateService(db);
         var request = new LoginRequest { Email = "ghost@test.com", Password = "whatever" };
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidCredentialException>(() => service.LoginAsync(request));
     }
 
     [Fact]
     public async Task LoginAsync_ShouldThrowInvalidCredentialException_WhenPasswordIsWrong()
     {
-        // Arrange
         using var db = TestDbContextFactory.Create();
-        // BCrypt — статический вызов внутри AuthService, не спрятан за интерфейсом, значит его нельзя замокать.
-        // Поэтому здесь реально хешируем пароль в Arrange, как это сделал бы настоящий RegisterAsync.
         db.Users.Add(new User
         {
             Id = Guid.NewGuid(),
@@ -133,7 +118,6 @@ public class AuthServiceTests
         var service = CreateService(db);
         var request = new LoginRequest { Email = "user@test.com", Password = "WrongPassword" };
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidCredentialException>(() => service.LoginAsync(request));
     }
 
@@ -146,7 +130,6 @@ public class AuthServiceTests
         using var db = TestDbContextFactory.Create();
         var service = CreateService(db);
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidCredentialException>(() => service.RefreshTokenAsync("does-not-exist"));
     }
 } 

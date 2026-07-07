@@ -37,10 +37,8 @@ public class QuestionnaireServiceTests
         await db.SaveChangesAsync();
         var service = CreateService(db);
 
-        // Act
         var result = (await service.GetQuestionsAsync()).ToList();
 
-        // Assert
         Assert.Single(result);
         Assert.Equal("Active Q", result[0].Text);
         Assert.Equal(new[] { "No", "Yes" }, result[0].Options);
@@ -50,31 +48,25 @@ public class QuestionnaireServiceTests
     [Fact]
     public async Task GetMyQuestionnaireStatusAsync_ShouldReturnNull_WhenNoQuestionnaireExists()
     {
-        // Arrange
         using var db = TestDbContextFactory.Create();
         var service = CreateService(db);
 
-        // Act
         var result = await service.GetMyQuestionnaireStatusAsync(Guid.NewGuid());
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task GetMyQuestionnaireStatusAsync_ShouldReturnNullScore_WhenQuestionnaireNotYetSubmitted()
     {
-        // Arrange
         using var db = TestDbContextFactory.Create();
         var supplierId = Guid.NewGuid();
         db.Questionnaires.Add(new Questionnaire { Id = Guid.NewGuid(), SupplierId = supplierId, Status = QuestionnaireStatus.InProgress, CreatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
         var service = CreateService(db);
 
-        // Act
         var result = await service.GetMyQuestionnaireStatusAsync(supplierId);
 
-        // Assert — та самая защита от NullReferenceException на Score, которую мы разбирали раньше
         Assert.NotNull(result);
         Assert.Equal(QuestionnaireStatus.InProgress, result!.Status);
         Assert.Null(result.TotalScore);
@@ -84,19 +76,16 @@ public class QuestionnaireServiceTests
     [Fact]
     public async Task SubmitQuestionnaireAsync_ShouldThrowBadRequestException_WhenNoQuestionnaireAssigned()
     {
-        // Arrange
         using var db = TestDbContextFactory.Create();
         var service = CreateService(db);
         var request = new SubmitQuestionnaireRequest { Answers = [] };
 
-        // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => service.SubmitQuestionnaireAsync(Guid.NewGuid(), request));
     }
 
     [Fact]
     public async Task SubmitQuestionnaireAsync_ShouldThrowBadRequestException_WhenAlreadySubmitted()
     {
-        // Arrange
         using var db = TestDbContextFactory.Create();
         var supplierId = Guid.NewGuid();
         db.Questionnaires.Add(new Questionnaire { Id = Guid.NewGuid(), SupplierId = supplierId, Status = QuestionnaireStatus.Submitted, CreatedAt = DateTime.UtcNow });
@@ -104,7 +93,6 @@ public class QuestionnaireServiceTests
         var service = CreateService(db);
         var request = new SubmitQuestionnaireRequest { Answers = [] };
 
-        // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => service.SubmitQuestionnaireAsync(supplierId, request));
     }
 }
