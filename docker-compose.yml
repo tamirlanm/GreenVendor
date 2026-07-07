@@ -12,7 +12,7 @@ services:
     volumes:
       - mssql_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "sqlcmd -S localhost -U sa -P 'GreenVendor@123Password' -Q 'SELECT 1' -b -C -o /dev/null"]
+      test: ["CMD-SHELL", "sqlcmd -S localhost -U sa -P ${MSSQL_SA_PASSWORD} -Q 'SELECT 1' -b -C -o /dev/null"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -30,9 +30,9 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db,${DB_HOST_PORT};Database=${DB_PORT};User Id=sa;Password={MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=db,${DB_PORT};Database=${DB_NAME};User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - JwtSettings__Secret=${JWT_SECRET}
-      - JwtSettings__Issuer=${JWT_ISSURE}
+      - JwtSettings__Issuer=${JWT_ISSUER}
       - JwtSettings__Audience=${JWT_AUDIENCE}
       - JwtSettings__ExpiryMinutes=${JWT_EXPIRY_MINUTES}
       - JwtSettings__RefreshTokenExpiryDays=${JWT_REFRESH_EXPIRY_DAYS}
