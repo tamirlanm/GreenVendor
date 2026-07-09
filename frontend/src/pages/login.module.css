@@ -144,6 +144,84 @@
   transform: scale(0.98); /* Subtle button push down animation on click */
 }
 
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.fieldError {
+  color: #b91c1c;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.switchText {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.switchText a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.switchText a:hover {
+  text-decoration: underline;
+}
+
+.roleToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.roleOption {
+  border: 1.5px solid #d9dce0;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: white;
+  transition: all 0.15s ease;
+}
+
+.roleOption:hover {
+  border-color: var(--primary);
+}
+
+.roleOptionActive {
+  border-color: var(--primary);
+  background: rgba(2, 160, 115, 0.08);
+  color: var(--primary);
+}
+
+.roleOptionActive small,
+.roleOption small {
+  display: block;
+  font-weight: 500;
+  font-size: 0.74rem;
+  margin-top: 0.15rem;
+  color: var(--text-muted);
+}
+
 /* --- Responsive Media Query (Desktop >= 992px) --- */
 @media (min-width: 992px) {
   .loginCard {

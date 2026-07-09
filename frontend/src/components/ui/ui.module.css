@@ -1,0 +1,221 @@
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary);
+  animation: spin 0.7s linear infinite;
+}
+
+.spinnerRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 3.5rem 2rem;
+  border: 1px dashed #d8dbe0;
+  border-radius: var(--radius-lg);
+  background: #fbfbfa;
+  color: var(--text-muted);
+}
+
+.emptyStateIcon {
+  color: #b8bcc4;
+  margin-bottom: 0.5rem;
+}
+
+.emptyStateTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.emptyStateBody {
+  font-size: 0.9rem;
+  max-width: 30rem;
+}
+
+.errorBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Grade badge -------------------------------------------------------- */
+
+.gradeBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+.gradeBadgeSm {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.75rem;
+}
+
+.gradeBadgeLg {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.35rem;
+}
+
+.gradeA {
+  background: #d3f3e2;
+  color: #0d6b3f;
+}
+.gradeB {
+  background: #dcf6e4;
+  color: #17803d;
+}
+.gradeC {
+  background: #fef3c7;
+  color: #92400e;
+}
+.gradeD {
+  background: #ffe4d5;
+  color: #b8460e;
+}
+.gradeF {
+  background: #fde0e0;
+  color: #b91c1c;
+}
+.gradeNone {
+  background: #eef0ef;
+  color: #6b7280;
+}
+
+/* Status pill ---------------------------------------------------------- */
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.statusPending {
+  background: #fef3c7;
+  color: #92400e;
+}
+.statusConfirmed {
+  background: #dcf6e4;
+  color: #17803d;
+}
+.statusRejected {
+  background: #fde0e0;
+  color: #b91c1c;
+}
+.statusCompleted {
+  background: #e0edff;
+  color: #1d4ed8;
+}
+.statusVerified {
+  background: #dcf6e4;
+  color: #17803d;
+}
+.statusUnverified {
+  background: #f3f0e8;
+  color: #92651c;
+}
+.statusDraft {
+  background: #eef0ef;
+  color: #6b7280;
+}
+.statusInProgress {
+  background: #fef3c7;
+  color: #92400e;
+}
+.statusSubmitted {
+  background: #dcf6e4;
+  color: #17803d;
+}
+
+/* Buttons -------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.92rem;
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1.25rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnPrimary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 10px rgba(2, 160, 115, 0.18);
+}
+.btnPrimary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.btnGhost {
+  background: transparent;
+  color: var(--text-dark);
+  border-color: #d9dce0;
+}
+.btnGhost:hover:not(:disabled) {
+  background: #f4f4f2;
+}
+
+.btnDanger {
+  background: #fff;
+  color: #b91c1c;
+  border-color: #f3caca;
+}
+.btnDanger:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.btnSm {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+}
+
+.btnFull {
+  width: 100%;
+}

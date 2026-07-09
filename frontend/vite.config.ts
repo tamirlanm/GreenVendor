@@ -6,6 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    host: true
-  }
+    host: true,
+    proxy: {
+      // Forwards to `dotnet run` (see backend/GreenVendor.Api/Properties/launchSettings.json).
+      // Override with VITE_API_PROXY_TARGET if your backend runs elsewhere (e.g. Docker on :5000).
+      '/api': {
+        target: process.env.VITE_API_PROXY_TARGET || 'http://localhost:5177',
+        changeOrigin: true,
+      },
+    },
+  },
 })
