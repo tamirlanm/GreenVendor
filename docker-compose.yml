@@ -72,6 +72,16 @@ services:
       - db
     networks:
       - gv_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: greenvendor-frontend:latest
+    volumes:
+      - frontend_dist:/output
+    networks:
+      - gv_net
   
 networks:
   gv_net:
