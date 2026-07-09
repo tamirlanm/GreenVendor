@@ -36,14 +36,11 @@ services:
       - JwtSettings__Audience=${JWT_AUDIENCE}
       - JwtSettings__ExpiryMinutes=${JWT_EXPIRY_MINUTES}
       - JwtSettings__RefreshTokenExpiryDays=${JWT_REFRESH_EXPIRY_DAYS}
-    
     volumes:
       - product_images:/app/wwwroot/images
-
     depends_on:
       db:
         condition: service_healthy
-
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 10s
@@ -53,15 +50,6 @@ services:
     networks:
       - gv_net
 
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    volumes:
-      - frontend_dist:/output
-    networks:
-      - gv_net
 
   nginx:
     image: nginx:1.25-alpine
@@ -73,8 +61,6 @@ services:
     depends_on:
       api:
         condition: service_healthy
-      frontend:
-        condition: service_completed_successfully
     networks:
       - gv_net
 
@@ -94,4 +80,3 @@ volumes:
   frontend_dist:
   mssql_data:
   product_images:
-

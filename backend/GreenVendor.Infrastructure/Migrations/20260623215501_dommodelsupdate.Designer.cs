@@ -13,7 +13,7 @@ namespace GreenVendor.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20260623215501_dommodelsupdate")]
-    partial class dommodelsupdate
+    partial class domModelsUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

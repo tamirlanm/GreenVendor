@@ -13,11 +13,38 @@ using GreenVendor.Api.Middleware;
 using FluentValidation;
 using GreenVendor.Application.DTOs;
 using GreenVendor.Application.Validators;
+using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");  
 
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("general-limit", context =>
+    {
+        var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(remoteIp, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 100,
+            Window = TimeSpan.FromSeconds(60)
+        });
+    });
+
+    options.AddPolicy("auth-limit", context =>
+    {
+        var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(remoteIp, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromSeconds(60)
+        });
+    });
+});
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(connectionString));
 builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
@@ -86,31 +113,69 @@ builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 builder.Services.AddScoped<IEsgScoringService, EsgScoringService>();
 builder.Services.AddScoped<IBuyerService, BuyerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IValidator<FileDTO>, FileDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateProductRequest>, CreateProductValidator>();
 builder.Services.AddScoped<IValidator<UpdateProductRequest>, UpdateProductValidator>();
 builder.Services.AddScoped<IValidator<UpdateSupplierRequest>, UpdateSupplierValidator>();
-builder.Services.AddScoped<IValidator<UpdateBuyerRequest>, UpdateBuyerValidator>(); 
+builder.Services.AddScoped<IValidator<UpdateBuyerRequest>, UpdateBuyerValidator>();
+builder.Services.AddScoped<IValidator<CreateOrderRequest>, CreateOrderValidator>(); 
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateSupplierRequest>();
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    const int maxRetries = 10;
+    for(var attempt = 1; attempt <= maxRetries; attempt++)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch(SqlException ex) when (attempt < maxRetries)
+        {
+            app.Logger.LogWarning(ex, "Database is not ready yet. Retry {Attempt}/{MaxRetries}", attempt, maxRetries);
+            await Task.Delay(TimeSpan.FromSeconds(3));
+        }
+    }
+}
+
+
+app.MapHealthChecks("/health");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference(options =>
+    app.MapOpenApi("/api/openapi/{documentName}.json");
+    app.MapScalarApiReference( "/api/docs", options =>
     {
         options.WithTitle("GreenVendor Api").WithTheme(ScalarTheme.DeepSpace)
-        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+        .WithOpenApiRoutePattern("/api/openapi/{documentName}.json");
     });
 }
+
+app.UseRateLimiter();
+
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseHttpsRedirection();
-app.MapControllers();
+if(!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+app.MapControllers().RequireRateLimiting("general-limit");
 
 app.Run();
 

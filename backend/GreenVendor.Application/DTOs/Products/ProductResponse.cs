@@ -10,4 +10,5 @@ public class ProductResponse
     public bool IsActive {get;set;}
     public DateTime CreatedAt {get;set;}
     public string Supplier {get;set;} = null!;
+    public string? ImageUrl {get;set;}
 }
