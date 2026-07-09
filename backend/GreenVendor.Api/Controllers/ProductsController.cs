@@ -68,4 +68,32 @@ public class ProductsController : ControllerBase
         await _productService.DeleteProductAsync(id, supplier);
         return NoContent();
     }
+
+    [Authorize(Roles = "Supplier")]
+    [HttpPost("/api/suppliers/me/products/{id}/photo")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(5*1024*1024)]
+    public async Task<ActionResult<ProductResponse>> UploadProductImage(Guid id, [FromForm] IFormFile image)
+    {
+        var supplier = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
+        var file = new FileDTO
+        {
+            Content = image.OpenReadStream(),
+            FileName = image.FileName,
+            ContentType = image.ContentType,
+            Size = image.Length
+        };
+
+        var response = await _productService.UploadProductPhotoAsync(id, supplier, file);
+        return Ok(response);
+    }
+
+    [Authorize(Roles = "Supplier")]
+    [HttpDelete("/api/suppliers/me/products/{id}/photo")]
+    public async Task<IActionResult> DeleteProductPhoto(Guid id)
+    {
+        var supplier = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
+        await _productService.DeleteProductPhotoAsync(id, supplier);
+        return NoContent();
+    }
 }

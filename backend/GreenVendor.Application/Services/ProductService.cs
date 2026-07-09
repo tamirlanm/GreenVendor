@@ -11,11 +11,15 @@ namespace GreenVendor.Application.Services;
 public class ProductService : IProductService
 {
     private readonly IAppDbContext _db;
+    private readonly IFileStorageService _fileStorage;
+    private readonly IValidator<FileDTO> _validatorFile;
     private readonly IValidator<UpdateProductRequest> _validatorUpdate;
     private readonly IValidator<CreateProductRequest> _validatorCreate;
-    public ProductService(IAppDbContext db, IValidator<UpdateProductRequest> validatorUpdate, IValidator<CreateProductRequest> validatorCreate)
+    public ProductService(IAppDbContext db, IFileStorageService fileStorage, IValidator<FileDTO> validatorFile, IValidator<UpdateProductRequest> validatorUpdate, IValidator<CreateProductRequest> validatorCreate)
     {
         _db = db;
+        _fileStorage = fileStorage;
+        _validatorFile = validatorFile;
         _validatorUpdate = validatorUpdate;
         _validatorCreate = validatorCreate;
     }
@@ -72,6 +76,7 @@ public class ProductService : IProductService
                 Name = p.Name,
                 ProductCategory = p.Category.ToString(),
                 Price = p.Price,
+                ImageUrl = p.ImageUrl
             }).ToListAsync();
 
             
@@ -102,7 +107,8 @@ public class ProductService : IProductService
             Price = product.Price,
             IsActive = product.IsActive,
             CreatedAt = product.CreatedAt,
-            Supplier = product.Supplier.CompanyName    
+            Supplier = product.Supplier.CompanyName,
+            ImageUrl = product.ImageUrl
         };
     }
 
@@ -150,6 +156,7 @@ public class ProductService : IProductService
                 Name = p.Name,
                 ProductCategory = p.Category.ToString(),
                 Price = p.Price,
+                ImageUrl = p.ImageUrl
             }).ToListAsync();
         
         return new PagedResult<SupplierProductsCatalog>
@@ -204,7 +211,8 @@ public class ProductService : IProductService
             Price = newProduct.Price,
             IsActive = newProduct.IsActive,
             CreatedAt = newProduct.CreatedAt,
-            Supplier = supplier.CompanyName    
+            Supplier = supplier.CompanyName,
+            ImageUrl = newProduct.ImageUrl
         };
         return response;
     }
@@ -229,7 +237,7 @@ public class ProductService : IProductService
         if(productExists is null)
         {
             throw new NotFoundException($"Product with Id={id} not found.");
-        }
+        }   
 
         Enum.TryParse<ProductCategory>(request.Category, ignoreCase: true, out var parsedCategory);
         
@@ -250,7 +258,8 @@ public class ProductService : IProductService
             Price = productExists.Price,
             IsActive = productExists.IsActive,
             CreatedAt = productExists.CreatedAt,
-            Supplier = supplier.CompanyName    
+            Supplier = supplier.CompanyName,
+            ImageUrl = productExists.ImageUrl    
         };
         return response;
     }
@@ -272,6 +281,62 @@ public class ProductService : IProductService
         _db.Products.Remove(productExists);
         await _db.SaveChangesAsync();
 
+        return true;
+    }
+
+    public async Task<ProductResponse> UploadProductPhotoAsync(Guid productId, Guid supplierId, FileDTO file)
+    {
+        var fileValidation = await _validatorFile.ValidateAsync(file);
+        if (!fileValidation.IsValid)
+        {
+            var error = string.Join("; ", fileValidation.Errors.Select(e => e.ErrorMessage));
+            throw new BadRequestException($"Error validation: {error}");
+        }
+
+        var product = await _db.Products.Include(p => p.Supplier)
+            .FirstOrDefaultAsync(p => p.Id == productId && p.SupplierId == supplierId);
+        if (product is null)
+        {
+            throw new NotFoundException($"Product with Id={productId} not found.");
+        }
+
+        var oldImageUrl = product.ImageUrl;
+        product.ImageUrl = await _fileStorage.SaveFileAsync(file, "products");
+        await _db.SaveChangesAsync();
+
+        if (!string.IsNullOrWhiteSpace(oldImageUrl))
+        {
+            _fileStorage.DeleteFile(oldImageUrl); 
+        }
+
+        return new ProductResponse
+        {
+            Id = product.Id,
+            SupplierId = product.SupplierId,
+            Name = product.Name,
+            Description = product.Description,
+            Category = product.Category.ToString(),
+            Price = product.Price,
+            IsActive = product.IsActive,
+            ImageUrl = product.ImageUrl,
+            CreatedAt = product.CreatedAt,
+            Supplier = product.Supplier.CompanyName
+        };
+    }
+
+    public async Task<bool> DeleteProductPhotoAsync(Guid productId, Guid supplierId)
+    {
+        var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == productId && p.SupplierId == supplierId);
+        if (product is null)
+        {
+            throw new NotFoundException($"Product with Id={productId} not found.");
+        }
+        if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+        {
+            _fileStorage.DeleteFile(product.ImageUrl);
+            product.ImageUrl = null;
+            await _db.SaveChangesAsync();
+        }
         return true;
     }
 }

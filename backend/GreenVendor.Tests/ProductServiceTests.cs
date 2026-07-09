@@ -12,6 +12,8 @@ namespace GreenVendor.Tests;
 
 public class ProductServiceTests
 {
+    private readonly Mock<IFileStorageService> _fileStorageMock;
+    private readonly Mock<IValidator<FileDTO>> _fileValidatorMock;
     private readonly Mock<IValidator<UpdateProductRequest>> _updateValidatorMock;
     private readonly Mock<IValidator<CreateProductRequest>> _createValidatorMock;
 
@@ -23,11 +25,15 @@ public class ProductServiceTests
         _createValidatorMock = new Mock<IValidator<CreateProductRequest>>();
         _createValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<CreateProductRequest>(), default))
             .ReturnsAsync(new ValidationResult());
+        _fileStorageMock = new Mock<IFileStorageService>();
+        _fileValidatorMock = new Mock<IValidator<FileDTO>>();
+        _fileValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<FileDTO>(), default))
+            .ReturnsAsync(new ValidationResult());
     }
 
     private ProductService CreateService(GreenVendor.Infrastructure.Data.AppDbContext db)
-        => new(db, _updateValidatorMock.Object, _createValidatorMock.Object);
-
+        => new(db, _fileStorageMock.Object, _fileValidatorMock.Object, _updateValidatorMock.Object, _createValidatorMock.Object);
+    
     [Fact]
     public async Task GetProductsAsync_ShouldExcludeProduct_WhenSupplierGradeBelowMinEsgGrade()
     {

@@ -114,6 +114,8 @@ builder.Services.AddScoped<IEsgScoringService, EsgScoringService>();
 builder.Services.AddScoped<IBuyerService, BuyerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IValidator<FileDTO>, FileDTOValidator>();
 builder.Services.AddScoped<IValidator<CreateProductRequest>, CreateProductValidator>();
 builder.Services.AddScoped<IValidator<UpdateProductRequest>, UpdateProductValidator>();
 builder.Services.AddScoped<IValidator<UpdateSupplierRequest>, UpdateSupplierValidator>();
