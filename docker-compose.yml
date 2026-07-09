@@ -37,6 +37,9 @@ services:
       - JwtSettings__ExpiryMinutes=${JWT_EXPIRY_MINUTES}
       - JwtSettings__RefreshTokenExpiryDays=${JWT_REFRESH_EXPIRY_DAYS}
     
+    volumes:
+      - product_images:/app/wwwroot/images
+
     depends_on:
       db:
         condition: service_healthy
@@ -90,4 +93,5 @@ networks:
 volumes:
   frontend_dist:
   mssql_data:
+  product_images:
 
