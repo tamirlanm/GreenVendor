@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Mail, Phone } from 'lucide-react'
 import { ArrowLeft, FileText, Mail, Phone } from 'lucide-react'
 import dash from '../../components/ui/dashboard.module.css'
 import { ErrorBanner, GradeBadge, Spinner, VerifiedPill } from '../../components/ui'
@@ -64,13 +63,14 @@ export function SupplierDetail() {
                 <Phone size={15} color="var(--text-muted)" /> {supplier.phone}
               </div>
             )}
-            href={suppliersApi.certificateUrl(supplier.id)}
-+              target="_blank"
-+              rel="noreferrer"
-+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}
-+            >
-+              <FileText size={15} /> View sustainability certificate
-+            </a>
+            <a
+              href={suppliersApi.certificateUrl(supplier.id)}
+              target="_blank"
+              rel="noreferrer"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}
+            >
+              <FileText size={15} /> View sustainability certificate
+            </a>
           </div>
         </div>
 

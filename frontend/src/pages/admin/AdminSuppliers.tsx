@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { ClipboardPlus, ShieldCheck, Users } from 'lucide-react'
 import { ClipboardPlus, FileText, ShieldCheck, Users } from 'lucide-react'
 import dash from '../../components/ui/dashboard.module.css'
 import { Button, EmptyState, ErrorBanner, GradeBadge, Spinner, VerifiedPill } from '../../components/ui'
@@ -121,10 +120,10 @@ export function AdminSuppliers() {
                           <ShieldCheck size={14} /> {s.isVerified ? 'Verified' : 'Verify'}
                         </Button>
                         <a href={suppliersApi.certificateUrl(s.id)} target="_blank" rel="noreferrer">
-+                          <Button size="sm" variant="ghost" type="button">
-+                            <FileText size={14} /> Certificate
-+                          </Button>
-+                        </a>
+                          <Button size="sm" variant="ghost" type="button">
+                            <FileText size={14} /> Certificate
+                          </Button>
+                        </a>
                       </div>
                     </td>
                   </tr>

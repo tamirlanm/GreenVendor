@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { FileUp, Save } from 'lucide-react'
 import { FileText, FileUp, Save } from 'lucide-react'
 import dash from '../../components/ui/dashboard.module.css'
 import { Button, ErrorBanner, GradeBadge, Spinner, VerifiedPill } from '../../components/ui'
@@ -228,7 +227,7 @@ export function SupplierProfile() {
             )}
 
             {profile && (
-              
+              <a
                 href={suppliersApi.certificateUrl(profile.id)}
                 target="_blank"
                 rel="noreferrer"

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
-// Import CSS Modules styling object
+
 import styles from './Layout.module.css'
 
 import logoImg from '../icons/logo.png'
