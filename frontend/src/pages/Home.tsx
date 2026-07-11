@@ -54,26 +54,7 @@ const LISTINGS = [
   },
 ]
 
-const TESTIMONIALS = [
-  {
-    quote:
-      'GreenVendor transformed how we source raw materials. The GreenRatio score gives us instant confidence in every supplier we evaluate — it\u2019s become essential to our procurement workflow.',
-    author: 'Maria Chen',
-    role: 'Head of Procurement, NexGen Manufacturing',
-  },
-  {
-    quote:
-      'We cut supplier due-diligence time from weeks to days. Having Environmental, Social, and Governance scores side by side with pricing changed how our whole team shortlists vendors.',
-    author: 'Daniyar Sultanov',
-    role: 'Sourcing Lead, Aral Logistics',
-  },
-  {
-    quote:
-      'As a supplier, the questionnaire made it easy to show buyers exactly where we stand. Our GreenRatio score became a real sales asset, not just a compliance checkbox.',
-    author: 'Aigerim Bekova',
-    role: 'Founder, EcoPack Kazakhstan',
-  },
-]
+
 
 const FAQS = [
   {
@@ -106,7 +87,6 @@ export function Home() {
   const navigate = useNavigate()
   const [product, setProduct] = useState('')
   const [openFaq, setOpenFaq] = useState<number | null>(0)
-  const [testimonialIdx, setTestimonialIdx] = useState(0)
 
   useEffect(() => {
     if (window.location.hash) {
@@ -119,7 +99,6 @@ export function Home() {
     navigate('/register', product ? { state: { intent: 'buyer', query: product } } : undefined)
   }
 
-  const testimonial = TESTIMONIALS[testimonialIdx]
 
   return (
     <div className={styles.page}>
@@ -163,20 +142,6 @@ export function Home() {
             </button>
           </div>
 
-          <div className={styles.heroStats}>
-            <div>
-              <div className={styles.heroStatValue}>50,000+</div>
-              <div className={styles.heroStatLabel}>Verified Listings</div>
-            </div>
-            <div>
-              <div className={styles.heroStatValue}>12,000+</div>
-              <div className={styles.heroStatLabel}>Active Suppliers</div>
-            </div>
-            <div>
-              <div className={styles.heroStatValue}>98%</div>
-              <div className={styles.heroStatLabel}>ESG Compliant</div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -201,14 +166,6 @@ export function Home() {
               </Link>
 
               <div className={styles.howStatsRow}>
-                <div>
-                  <div className={styles.howStatValue}>50K+</div>
-                  <div className={styles.howStatLabel}>Active Listings</div>
-                </div>
-                <div>
-                  <div className={styles.howStatValue}>12K+</div>
-                  <div className={styles.howStatLabel}>Verified Suppliers</div>
-                </div>
               </div>
             </div>
 
@@ -343,35 +300,6 @@ export function Home() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonial -------------------------------------------------------- */}
-      <section className={clsx(styles.section, styles.testimonialSection)}>
-        <div className={styles.sectionInner}>
-          <div className={styles.testimonialCard}>
-            <div>
-              <span className={styles.eyebrow}>Trusted by industry leaders</span>
-              <p className={styles.testimonialQuote}>&ldquo;{testimonial.quote}&rdquo;</p>
-              <div className={styles.testimonialAuthor}>{testimonial.author}</div>
-              <div className={styles.testimonialRole}>{testimonial.role}</div>
-
-              <div className={styles.testimonialDots}>
-                {TESTIMONIALS.map((t, i) => (
-                  <button
-                    key={t.author}
-                    className={clsx(styles.testimonialDot, i === testimonialIdx && styles.testimonialDotActive)}
-                    onClick={() => setTestimonialIdx(i)}
-                    aria-label={`Show testimonial ${i + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.testimonialPortrait}>
-              <Sparkles size={40} strokeWidth={1} />
-            </div>
           </div>
         </div>
       </section>
