@@ -57,8 +57,8 @@ export function Login() {
             <div className={styles.benefitItem}>
               <div className={styles.benefitNumber}>2</div>
               <div className={styles.benefitText}>
-                <h3>Smart Matching</h3>
-                <p>Let our website match you with suppliers that fit your business needs.</p>
+                <h3>Powerful Filtering</h3>
+                <p>Search and filter suppliers by industry, ESG grade, and pricing to find the right fit.</p>
               </div>
             </div>
 

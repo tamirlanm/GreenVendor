@@ -136,7 +136,7 @@ export function Home() {
           </h1>
 
           <p className={styles.heroSubtitle}>
-            AI-powered bulk sourcing that evaluates every listing on price competitiveness and sustainability.
+            Bulk sourcing that scores every listing on price competitiveness and sustainability.
             Connect with verified suppliers and make procurement decisions you can stand behind.
           </p>
 
@@ -227,17 +227,17 @@ export function Home() {
               <div className={styles.stepCard}>
                 <div className={styles.stepNumber}>02</div>
                 <div>
-                  <div className={styles.stepTitle}>AI Evaluates &amp; Scores</div>
+                  <div className={styles.stepTitle}>Scored Agains ESG criteria</div>
                   <div className={styles.stepBody}>
-                    Our engine analyzes each listing, generating a GreenRatio score based on price competitiveness
-                    and ESG factors.
+                    Each listing is scored with a GreenRatio based on price competitiveness and the supplier's
++                    Environmental, Social, and Governance answers.
                   </div>
                 </div>
               </div>
 
               <div className={styles.scorePanel}>
                 <div className={styles.scorePanelBadge}>
-                  <Sparkles size={13} /> AI-Verified Score
+                  <Sparkles size={13} /> GreenRatio Score
                 </div>
                 <div className={styles.scoreBars}>
                   <div className={styles.scoreBarRow}>

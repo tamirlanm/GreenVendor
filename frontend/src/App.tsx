@@ -22,9 +22,7 @@ const SupplierProfile = lazy(() => import('./pages/supplier/SupplierProfile').th
 const BuyerCatalog = lazy(() => import('./pages/buyer/BuyerCatalog').then((m) => ({ default: m.BuyerCatalog })))
 const SupplierDetail = lazy(() => import('./pages/buyer/SupplierDetail').then((m) => ({ default: m.SupplierDetail })))
 const BuyerOrders = lazy(() => import('./pages/buyer/BuyerOrders').then((m) => ({ default: m.BuyerOrders })))
-const BuyerRecommendations = lazy(() =>
-  import('./pages/buyer/BuyerRecommendations').then((m) => ({ default: m.BuyerRecommendations })),
-)
+
 const BuyerProfile = lazy(() => import('./pages/buyer/BuyerProfile').then((m) => ({ default: m.BuyerProfile })))
 
 const AdminSuppliers = lazy(() => import('./pages/admin/AdminSuppliers').then((m) => ({ default: m.AdminSuppliers })))
@@ -60,7 +58,7 @@ export default function App() {
               <Route path="/buyer" element={<BuyerCatalog />} />
               <Route path="/buyer/suppliers/:id" element={<SupplierDetail />} />
               <Route path="/buyer/orders" element={<BuyerOrders />} />
-              <Route path="/buyer/recommendations" element={<BuyerRecommendations />} />
+              
               <Route path="/buyer/profile" element={<BuyerProfile />} />
             </Route>
           </Route>
