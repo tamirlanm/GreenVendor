@@ -227,14 +227,13 @@ export function SupplierProfile() {
             )}
 
             {profile && (
-              <a
-                href={suppliersApi.certificateUrl(profile.id)}
-                target="_blank"
-                rel="noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.75rem', textDecoration: 'none' }}
+              <button
+                type="button"
+                onClick={() => suppliersApi.viewCertificate(profile.id)}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.75rem', textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
               >
                 <FileText size={14} /> View current certificate on file
-              </a>
+              </button>
             )}
 
           </div>
