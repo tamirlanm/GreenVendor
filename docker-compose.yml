@@ -57,7 +57,9 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - frontend_dist:/usr/share/nginx/html:ro
+      - frontend_dist:/usr/share/nginx/html:ro      
+      - product_images:/app/wwwroot/images
+      - suppliers_certificates:/app/ProtectedStorage/Certificates
     depends_on:
       api:
         condition: service_healthy
@@ -90,3 +92,4 @@ volumes:
   frontend_dist:
   mssql_data:
   product_images:
+  suppliers_certificates:

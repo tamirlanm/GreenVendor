@@ -17,8 +17,8 @@ WORKDIR /app
 
 USER root
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /app/wwwroot/images \
-    && chown -R $APP_UID:$APP_UID /app/wwwroot
+    && mkdir -p /app/wwwroot/images /app/ProtectedStorage/Certificates \
+    && chown -R $APP_UID:$APP_UID /app/wwwroot /app/ProtectedStorage
 USER $APP_UID
 
 COPY --from=publish /app/publish .

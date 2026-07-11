@@ -6,4 +6,5 @@ public class UpdateProductRequest
     public string Category {get;set;} = string.Empty;
     public decimal Price {get;set;}
     public bool IsActive {get;set;}
+    public int Quantity {get;set;}
 }
