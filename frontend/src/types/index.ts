@@ -154,6 +154,7 @@ export interface ProductsCatalog {
   companyName: string
   productCategory: string
   price: number
+  imageUrl: string | null
 }
 
 export interface SupplierProductsCatalog {
@@ -162,6 +163,7 @@ export interface SupplierProductsCatalog {
   name: string
   productCategory: string
   price: number
+  imageUrl: string | null
 }
 
 export interface ProductResponse {
@@ -174,6 +176,7 @@ export interface ProductResponse {
   isActive: boolean
   createdAt: string
   supplier: string
+  imageUrl: string | null
 }
 
 export interface CreateProductRequest {
@@ -300,15 +303,4 @@ export interface UpdateOrderRequest {
   status: Extract<OrderStatus, 'Confirmed' | 'Rejected'>
 }
 
-// ----- ML Recommendations (planned contract, proxied via
-//   GET /api/buyers/me/recommendations — not live on backend yet) -----
 
-export interface RankedSupplier {
-  supplierId: string
-  similarityScore: number
-  reason: string
-}
-
-export interface RecommendResponse {
-  recommendations: RankedSupplier[]
-}

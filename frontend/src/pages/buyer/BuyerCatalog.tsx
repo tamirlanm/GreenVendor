@@ -40,7 +40,7 @@ export function BuyerCatalog() {
   )
 }
 
-// ---------------------------------------------------------------- Suppliers
+//Suppliers ----------------------------------------------------------------
 
 function SuppliersTab() {
   const [items, setItems] = useState<SupplierCatalogItemResponse[]>([])
@@ -168,7 +168,7 @@ function scoreToGrade(score: number): string {
   return 'F'
 }
 
-// ------------------------------------------------------------------ Products
+//Products ------------------------------------------------------------------ 
 
 function ProductsTab() {
   const [items, setItems] = useState<ProductsCatalog[]>([])
@@ -273,6 +273,19 @@ function ProductsTab() {
           <div className={dash.grid3}>
             {filtered.map((p) => (
               <div key={p.id} className={dash.card}>
+                {p.imageUrl && (
+                  <img
+                    src={p.imageUrl}
+                    alt={p.name}
+                    style={{
+                      width: '100%',
+                      height: '9rem',
+                      objectFit: 'cover',
+                      borderRadius: 'var(--radius-md)',
+                      marginBottom: '0.85rem',
+                    }}
+                  />
+                )}
                 <div className={dash.cardHeader}>
                   <span className={dash.cardTitle} style={{ fontSize: '1rem' }}>
                     {p.name}

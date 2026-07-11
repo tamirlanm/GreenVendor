@@ -53,7 +53,7 @@ export function BuyerProfile() {
       <div className={dash.pageHeader}>
         <div>
           <h1 className={dash.pageTitle}>Company Profile</h1>
-          <p className={dash.pageSubtitle}>Set your sourcing preferences to help the catalog and recommendations.</p>
+          <p className={dash.pageSubtitle}>Set your sourcing preferences to tailor the catalog to your needs</p>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Loader2, Package, Pencil, Plus, Trash2, X } from 'lucide-react'
+
+import { useEffect, useRef, useState } from 'react'
+import { ImagePlus, Loader2, Package, Pencil, Plus, Trash2, X } from 'lucide-react'
 import dash from '../../components/ui/dashboard.module.css'
 import { Button, EmptyState, ErrorBanner, Spinner } from '../../components/ui'
 import { productsApi } from '../../api/products'
@@ -25,6 +26,10 @@ export function SupplierProducts() {
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const [photoError, setPhotoError] = useState<string | null>(null)
+  const photoInputRef = useRef<HTMLInputElement>(null)
 
   const load = () => {
     setLoading(true)
@@ -42,12 +47,16 @@ export function SupplierProducts() {
     setEditingId(null)
     setForm(emptyForm)
     setFormError(null)
+    setPhotoUrl(null)
+    setPhotoError(null)
     setModalOpen(true)
   }
 
   const openEdit = async (id: string) => {
     setEditingId(id)
     setFormError(null)
+    setPhotoUrl(null)
+    setPhotoError(null)
     setModalOpen(true)
     try {
       const full = await productsApi.getById(id)
@@ -58,12 +67,43 @@ export function SupplierProducts() {
         price: full.price,
         isActive: full.isActive,
       })
+      setPhotoUrl(full.imageUrl)
     } catch (err) {
       setFormError(apiErrorMessage(err))
     }
   }
 
   const closeModal = () => setModalOpen(false)
+
+  const handlePhotoFile = async (file: File) => {
+    if (!editingId) return
+    setPhotoError(null)
+    setPhotoBusy(true)
+    try {
+      const updated = await productsApi.uploadPhoto(editingId, file)
+      setPhotoUrl(updated.imageUrl)
+      setItems((prev) => prev.map((p) => (p.id === editingId ? { ...p, imageUrl: updated.imageUrl } : p)))
+    } catch (err) {
+      setPhotoError(apiErrorMessage(err, 'Could not upload this photo.'))
+    } finally {
+      setPhotoBusy(false)
+    }
+  }
+
+  const removePhoto = async () => {
+    if (!editingId) return
+    setPhotoError(null)
+    setPhotoBusy(true)
+    try {
+      await productsApi.deletePhoto(editingId)
+      setPhotoUrl(null)
+      setItems((prev) => prev.map((p) => (p.id === editingId ? { ...p, imageUrl: null } : p)))
+    } catch (err) {
+      setPhotoError(apiErrorMessage(err, 'Could not remove this photo.'))
+    } finally {
+      setPhotoBusy(false)
+    }
+  }
 
   const submitForm = async () => {
     setFormError(null)
@@ -73,6 +113,11 @@ export function SupplierProducts() {
     }
     if (form.price <= 0) {
       setFormError('Price must be greater than zero.')
+      return
+    }
+    const descLen = form.description?.trim().length ?? 0
+    if (descLen > 0 && (descLen < 50 || descLen > 800)) {
+      setFormError('Description must be between 50 and 800 characters (or left empty).')
       return
     }
 
@@ -138,6 +183,7 @@ export function SupplierProducts() {
             <table className={dash.table}>
               <thead>
                 <tr>
+                  <th></th>
                   <th>Name</th>
                   <th>Category</th>
                   <th>Price</th>
@@ -147,6 +193,29 @@ export function SupplierProducts() {
               <tbody>
                 {items.map((p) => (
                   <tr key={p.id}>
+                    <td style={{ width: '3rem' }}>
+                      {p.imageUrl ? (
+                        <img
+                          src={p.imageUrl}
+                          alt={p.name}
+                          style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.4rem', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: '2.25rem',
+                            height: '2.25rem',
+                            borderRadius: '0.4rem',
+                            background: 'var(--primary-light)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Package size={16} color="var(--primary)" />
+                        </div>
+                      )}
+                    </td>
                     <td style={{ fontWeight: 600 }}>{p.name}</td>
                     <td>
                       <span className={dash.chip}>{p.productCategory}</span>
@@ -183,6 +252,62 @@ export function SupplierProducts() {
 
             {formError && <ErrorBanner message={formError} />}
 
+            {editingId && (
+              <div className={dash.formRow}>
+                <label className={dash.formLabel}>Photo</label>
+                {photoError && <ErrorBanner message={photoError} />}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                  {photoUrl ? (
+                    <img
+                      src={photoUrl}
+                      alt="Product"
+                      style={{ width: '4.5rem', height: '4.5rem', borderRadius: '0.5rem', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: '4.5rem',
+                        height: '4.5rem',
+                        borderRadius: '0.5rem',
+                        background: 'var(--primary-light)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Package size={22} color="var(--primary)" />
+                    </div>
+                  )}
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) handlePhotoFile(file)
+                      e.target.value = ''
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => photoInputRef.current?.click()}
+                    disabled={photoBusy}
+                  >
+                    {photoBusy ? <Loader2 size={14} className="spin" /> : <ImagePlus size={14} />}
+                    {photoUrl ? 'Replace' : 'Upload'}
+                  </Button>
+                  {photoUrl && (
+                    <Button type="button" variant="danger" size="sm" onClick={removePhoto} disabled={photoBusy}>
+                      <Trash2 size={14} /> Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className={dash.formRow}>
               <label className={dash.formLabel}>Product Name</label>
               <input
@@ -201,6 +326,19 @@ export function SupplierProducts() {
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 placeholder="Short description buyers will see"
               />
+              <span
+                style={{
+                  fontSize: '0.76rem',
+                  marginTop: '0.3rem',
+                  color:
+                    (form.description?.trim().length ?? 0) > 0 &&
+                    ((form.description?.trim().length ?? 0) < 50 || (form.description?.trim().length ?? 0) > 800)
+                      ? '#b91c1c'
+                      : 'var(--text-muted)',
+                }}
+              >
+                Optional — if filled in, must be 50–800 characters ({form.description?.trim().length ?? 0} now).
+              </span>
             </div>
 
             <div className={dash.formGrid2}>

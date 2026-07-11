@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { ClipboardPlus, ShieldCheck, Users } from 'lucide-react'
+import { ClipboardPlus, FileText, ShieldCheck, Users } from 'lucide-react'
 import dash from '../../components/ui/dashboard.module.css'
 import { Button, EmptyState, ErrorBanner, GradeBadge, Spinner, VerifiedPill } from '../../components/ui'
 import { adminApi } from '../../api/admin'
+import { suppliersApi } from '../../api/suppliers'
 import { apiErrorMessage } from '../../api/client'
 import type { SupplierCatalogItemResponse } from '../../types'
 
@@ -118,6 +119,11 @@ export function AdminSuppliers() {
                         <Button size="sm" onClick={() => verify(s.id)} disabled={rowBusy[s.id] || s.isVerified}>
                           <ShieldCheck size={14} /> {s.isVerified ? 'Verified' : 'Verify'}
                         </Button>
+                        <a href={suppliersApi.certificateUrl(s.id)} target="_blank" rel="noreferrer">
+                          <Button size="sm" variant="ghost" type="button">
+                            <FileText size={14} /> Certificate
+                          </Button>
+                        </a>
                       </div>
                     </td>
                   </tr>

@@ -14,6 +14,12 @@ export default defineConfig({
         target: process.env.VITE_API_PROXY_TARGET || 'http://localhost:5177',
         changeOrigin: true,
       },
+      // Product photos are served from the API's wwwroot/images and proxied
+      // the same way nginx does in prod — without this, <img src="/images/..."> 404s in dev.
+      '/images': {
+        target: process.env.VITE_API_PROXY_TARGET || 'http://localhost:5177',
+        changeOrigin: true,
+      },
     },
   },
 })

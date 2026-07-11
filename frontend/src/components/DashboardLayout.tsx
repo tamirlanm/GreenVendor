@@ -8,7 +8,6 @@ import {
   Menu,
   Package,
   ShoppingBag,
-  Sparkles,
   UserCog,
   Users,
   X,
@@ -38,7 +37,6 @@ const NAV_BY_ROLE: Record<'Supplier' | 'Buyer' | 'Admin', NavItem[]> = {
   Buyer: [
     { to: '/buyer', label: 'Catalog', icon: <LayoutDashboard size={18} />, end: true },
     { to: '/buyer/orders', label: 'My Orders', icon: <ShoppingBag size={18} /> },
-    { to: '/buyer/recommendations', label: 'Recommendations', icon: <Sparkles size={18} /> },
     { to: '/buyer/profile', label: 'Company Profile', icon: <UserCog size={18} /> },
   ],
   Admin: [

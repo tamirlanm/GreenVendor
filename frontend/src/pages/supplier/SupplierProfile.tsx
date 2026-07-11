@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { FileUp, Save } from 'lucide-react'
+import { FileText, FileUp, Save } from 'lucide-react'
 import dash from '../../components/ui/dashboard.module.css'
 import { Button, ErrorBanner, GradeBadge, Spinner, VerifiedPill } from '../../components/ui'
 import { suppliersApi } from '../../api/suppliers'
@@ -40,6 +40,19 @@ export function SupplierProfile() {
     if (!form) return
     setError(null)
     setSaved(false)
+    
+    
+    const descLen = form.description?.trim().length ?? 0
+    if (descLen > 0 && (descLen < 50 || descLen > 800)) {
+      setError('Description must be between 50 and 800 characters (or left empty).')
+      return
+    }
+    if (form.phone && form.phone.trim() && !/^\+[1-9]\d{1,14}$/.test(form.phone.trim())) {
+      setError('Phone must be in international format with no spaces, e.g. +77771234567.')
+      return
+    }
+
+
     setSaving(true)
     try {
       const updated = await suppliersApi.updateMyProfile(form)
@@ -116,8 +129,11 @@ export function SupplierProfile() {
                 className={dash.input}
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                placeholder="+7 700 000 00 00"
+                placeholder="+77771234567"
               />
+              <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+                Optional — international format, no spaces (e.g. +77771234567).
+              </span>
             </div>
           </div>
 
@@ -139,6 +155,19 @@ export function SupplierProfile() {
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="What does your company make or supply?"
             />
+            <span
+              style={{
+                fontSize: '0.76rem',
+                marginTop: '0.3rem',
+                color:
+                  (form.description?.trim().length ?? 0) > 0 &&
+                  ((form.description?.trim().length ?? 0) < 50 || (form.description?.trim().length ?? 0) > 800)
+                    ? '#b91c1c'
+                    : 'var(--text-muted)',
+              }}
+            >
+              Optional — if filled in, must be 50–800 characters ({form.description?.trim().length ?? 0} now).
+            </span>
           </div>
 
           {saved && (
@@ -196,6 +225,18 @@ export function SupplierProfile() {
                 Uploaded: {uploadedName}
               </p>
             )}
+
+            {profile && (
+              <a
+                href={suppliersApi.certificateUrl(profile.id)}
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.75rem', textDecoration: 'none' }}
+              >
+                <FileText size={14} /> View current certificate on file
+              </a>
+            )}
+
           </div>
         </div>
       </div>

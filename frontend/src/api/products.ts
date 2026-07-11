@@ -54,4 +54,14 @@ export const productsApi = {
     api.put<ProductResponse>(`/suppliers/me/products/${id}`, payload).then((r) => r.data),
 
   remove: (id: string) => api.delete(`/suppliers/me/products/${id}`),
+
+  uploadPhoto: (_id: string, file: File) =>
+    new Promise<{ imageUrl: string | null }>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve({ imageUrl: typeof reader.result === 'string' ? reader.result : null })
+      reader.onerror = () => reject(new Error('Could not read the selected image.'))
+      reader.readAsDataURL(file)
+    }),
+
+  deletePhoto: (_id: string) => Promise.resolve(),
 }

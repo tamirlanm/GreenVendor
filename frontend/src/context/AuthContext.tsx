@@ -49,7 +49,7 @@ export function useAuth() {
   return ctx
 }
 
-/** Default landing page for a freshly-authenticated user of a given role. */
+
 export function homeRouteForRole(role: UserRole): string {
   switch (role) {
     case 'Supplier':
