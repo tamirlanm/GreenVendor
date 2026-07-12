@@ -8,4 +8,5 @@ public interface ISupplierService
     Task<SupplierDetailsResponse?> UpdateSupplierAsync(Guid id, UpdateSupplierRequest request);
     Task<bool> UploadCertificateAsync(Guid id, Stream fileStream, string fileName);
     Task<(Stream FileStream, string ContentType, string FileName)> GetCertificateAsync(Guid supplierId);
+    Task<IEnumerable<TopSupplierEsgResponse>> GetTopSuppliersByEsgAsync(int take = 3);
 }
