@@ -1,8 +1,0 @@
-HTTP/1.1 415 Unsupported Media Type
-Server: nginx/1.25.5
-Date: Thu, 09 Jul 2026 08:35:04 GMT
-Content-Type: application/problem+json; charset=utf-8
-Transfer-Encoding: chunked
-Connection: keep-alive
-
-{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.16","title":"Unsupported Media Type","status":415,"traceId":"00-62ab53a5d68b2b2e00c33a6fdfcb1cbf-9d9ef2acbf60f2be-00"}

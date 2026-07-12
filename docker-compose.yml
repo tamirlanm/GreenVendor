@@ -29,6 +29,7 @@ services:
     ports:
       - "5000:8080"
     environment:
+      - Cors__AllowedOrigins=${CORS_ALLOWED_ORIGINS}
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db,${DB_PORT};Database=${DB_NAME};User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - JwtSettings__Secret=${JWT_SECRET}

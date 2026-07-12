@@ -45,6 +45,18 @@ builder.Services.AddRateLimiter(options =>
         });
     });
 });
+
+var corsOrigins = builder.Configuration["Cors:AllowedOrigins"]?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    ?? builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DefaultCorsPolicy", policy =>
+    {
+        policy.WithOrigins(corsOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+    });
+});
+
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(connectionString));
 builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
@@ -166,7 +178,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRateLimiter();
-
+app.UseCors("DefaultCorsPolicy");
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
