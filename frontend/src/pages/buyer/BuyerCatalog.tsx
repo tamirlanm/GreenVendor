@@ -305,9 +305,9 @@ function ProductsTab({ initialSearch, initialCategory }: { initialSearch?: strin
                   <span style={{ fontWeight: 800, color: 'var(--text-dark)' }}>${p.price.toFixed(2)}</span>
                 </div>
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.6rem' }}>
-+                  {p.quantity > 0 ? `${p.quantity} in stock` : 'Out of stock'}
-+                </p>
-+                <Button full size="sm" onClick={() => setOrderTarget(p)} disabled={p.quantity <= 0}>
+                  {p.quantity > 0 ? `${p.quantity} in stock` : 'Out of stock'}
+                </p>
+                <Button full size="sm" onClick={() => setOrderTarget(p)} disabled={p.quantity <= 0}>
                   <ShoppingCart size={14} /> Order
                 </Button>
               </div>
@@ -384,8 +384,12 @@ function OrderModal({ product, onClose }: { product: ProductsCatalog; onClose: (
                 type="number"
                 min={1}
                 className={dash.input}
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+                value={quantity === 1 ? '' : quantity}
+                onChange={(e) => {
+                  const raw = e.target.value
+                  setQuantity(raw === '' ? 1 : Math.max(1, Number(raw)))
+                }}
+                placeholder="1"
               />
             </div>
             <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Total: ${(quantity * product.price).toFixed(2)}</p>
