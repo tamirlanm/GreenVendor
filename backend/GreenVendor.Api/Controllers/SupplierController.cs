@@ -27,13 +27,19 @@ public class SupplierController : ControllerBase
     {
         var response = await _supplierService.GetSupplierDetailsAsync(id);
         return Ok(response);
+    }   
+
+    [HttpGet("top-esg")]
+    public async Task<ActionResult<IEnumerable<TopSupplierEsgResponse>>> GetTopSuppliersByEsg([FromQuery] int take = 3)
+    {
+        var response = await _supplierService.GetTopSuppliersByEsgAsync(take);
+        return Ok(response);
     }
 
     [Authorize(Roles = "Supplier")]
     [HttpGet("me")]
     public async Task<ActionResult<SupplierDetailsResponse>> GetMyProfile()
     {
-        // var supplier = User.GetUserId();
         var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
         var response = await _supplierService.GetSupplierDetailsAsync(supplierId);
         return Ok(response);
@@ -43,7 +49,6 @@ public class SupplierController : ControllerBase
     [HttpPut("me")]
     public async Task<ActionResult<SupplierDetailsResponse>> UpdateMyProfile([FromBody] UpdateSupplierRequest request)
     {
-        // var supplier = User.GetUserId();
         var supplierId = await _supplierService.GetMySupplierIdAsync(User.GetUserId());
         var response = await _supplierService.UpdateSupplierAsync(supplierId, request);
         return Ok(response);

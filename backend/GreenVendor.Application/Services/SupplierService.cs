@@ -171,6 +171,34 @@ public class SupplierService : ISupplierService
         return (stream, contentType, supplier.CertificatePath);
     }
     
+    public async Task<IEnumerable<TopSupplierEsgResponse>> GetTopSuppliersByEsgAsync(int take = 3)
+{
+    take = take <= 0 ? 3 : Math.Clamp(take, 1, 10);
+
+    var result = await _db.SupplierProfiles
+        .AsNoTracking()
+        .Where(s => s.LatestScore != null)
+        .OrderByDescending(s => s.LatestScore!.Total)
+        .ThenBy(s => s.CompanyName)
+        .Take(take)
+        .Select(supplier => new TopSupplierEsgResponse
+        {
+            Id = supplier.Id,
+            CompanyName = supplier.CompanyName,
+            Industry = supplier.Industry.ToString(),
+            IsVerified = supplier.IsVerified,
+            Environmental = supplier.LatestScore!.Environmental,
+            Social = supplier.LatestScore!.Social,
+            Governance = supplier.LatestScore!.Governance,
+            TotalEsgScore = supplier.LatestScore!.Total,
+            EsgGrade = supplier.LatestScore!.Grade,
+            CalculatedTime = supplier.LatestScore!.CalculatedTime
+        })
+        .ToListAsync();
+
+    return result;
+}
+
     private static string GetCertificateFolderPath() => Path.Combine(Directory.GetCurrentDirectory(), "ProtectedStorage", "Certificates");
 
     private static string GetContentType(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
@@ -207,4 +235,6 @@ public class SupplierService : ISupplierService
         }
         return extension;
     }
+
+
 }

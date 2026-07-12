@@ -43,6 +43,12 @@ public class OrderService : IOrderService
         {
             throw new BadRequestException("This product is no longer available for order.");
         }
+        if (request.Quantity > product.Quantity)
+        {
+            throw new BadRequestException($"Only {product.Quantity} unit(s) of this product are available.");
+        }
+
+        product.Quantity -= request.Quantity;
 
         var totalPrice = product.Price * request.Quantity;
 
@@ -160,6 +166,11 @@ public class OrderService : IOrderService
 
         order.Status = newStatus;
         order.UpdatedAt = DateTime.UtcNow;
+        if (newStatus == OrderStatus.Rejected)
+        {
+            order.Product.Quantity += order.Quantity;
+        }
+
         await _db.SaveChangesAsync();
 
         var response = new OrderResponse
