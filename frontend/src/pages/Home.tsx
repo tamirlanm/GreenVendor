@@ -2,78 +2,51 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowRight,
-  Boxes,
   Cpu,
   Leaf,
   Package,
   Plus,
   Search,
-  Sparkles,
-  Wheat,
+  ShieldCheck,
+  Wrench,
 } from 'lucide-react'
 import clsx from 'clsx'
 import styles from './home.module.css'
+import { useAuth, homeRouteForRole } from '../context/AuthContext'
+import { suppliersApi } from '../api/suppliers'
+import { PRODUCT_CATEGORIES, type SupplierCatalogItemResponse } from '../types'
+import type { TopSupplierEsgResponse } from '../types'
 
-const CATEGORIES = [
-  { name: 'Raw Materials', count: '2,340 listings', icon: Leaf, gradient: 'linear-gradient(155deg,#b08968,#8a6a4d)' },
-  { name: 'Packaging', count: '1,890 listings', icon: Package, gradient: 'linear-gradient(155deg,#6b8f71,#41573f)' },
-  { name: 'Electronics', count: '3,120 listings', icon: Cpu, gradient: 'linear-gradient(155deg,#4b5a63,#2b333a)' },
-  { name: 'Food & Beverage', count: '4,550 listings', icon: Wheat, gradient: 'linear-gradient(155deg,#c99a4a,#a3762f)' },
-]
+// Real backend categories (see types/index.ts PRODUCT_CATEGORIES) — no invented
+// listing counts, since GET /api/products is Buyer-only and can't be called
+// from this public page (see ProductsController.cs [Authorize(Roles="Buyer")]).
+const CATEGORY_ICON: Record<string, typeof Leaf> = {
+  RawMaterials: Leaf,
+  Packaging: Package,
+  Electronics: Cpu,
+  Furniture: Wrench,
+  Paper: Package,
+  Other: Package,
+}
+const CATEGORY_GRADIENT: Record<string, string> = {
+  RawMaterials: 'linear-gradient(155deg,#b08968,#8a6a4d)',
+  Packaging: 'linear-gradient(155deg,#6b8f71,#41573f)',
+  Electronics: 'linear-gradient(155deg,#4b5a63,#2b333a)',
+  Furniture: 'linear-gradient(155deg,#c99a4a,#a3762f)',
+  Paper: 'linear-gradient(155deg,#8fae6b,#557239)',
+  Other: 'linear-gradient(155deg,#7c8c94,#4d5a61)',
+}
+const CATEGORY_LABEL: Record<string, string> = {
+  RawMaterials: 'Raw Materials',
+}
 
-const LISTINGS = [
-  {
-    name: 'Organic Cotton Fabric Rolls',
-    supplier: 'EcoTex Mills',
-    price: '$2.40/kg',
-    min: '500 kg min',
-    tags: ['GOTS Certified', 'Fair Trade', 'Carbon Neutral'],
-    ratio: 91,
-    esg: 94,
-    gradient: 'linear-gradient(155deg,#d9c9a3,#a6906a)',
-  },
-  {
-    name: 'Recycled HDPE Pellets',
-    supplier: 'GreenPoly Industries',
-    price: '$1.15/kg',
-    min: '1 ton min',
-    tags: ['Post-Consumer', 'Low Carbon'],
-    ratio: 86,
-    esg: 88,
-    gradient: 'linear-gradient(155deg,#7c8c94,#4d5a61)',
-  },
-  {
-    name: 'Bamboo Packaging Trays',
-    supplier: 'VerdePack Solutions',
-    price: '$0.85/unit',
-    min: '2,000 units min',
-    tags: ['Biodegradable', 'FSC Certified'],
-    ratio: 93,
-    esg: 96,
-    gradient: 'linear-gradient(155deg,#8fae6b,#557239)',
-  },
-]
-
-const TESTIMONIALS = [
-  {
-    quote:
-      'GreenVendor transformed how we source raw materials. The GreenRatio score gives us instant confidence in every supplier we evaluate — it\u2019s become essential to our procurement workflow.',
-    author: 'Maria Chen',
-    role: 'Head of Procurement, NexGen Manufacturing',
-  },
-  {
-    quote:
-      'We cut supplier due-diligence time from weeks to days. Having Environmental, Social, and Governance scores side by side with pricing changed how our whole team shortlists vendors.',
-    author: 'Daniyar Sultanov',
-    role: 'Sourcing Lead, Aral Logistics',
-  },
-  {
-    quote:
-      'As a supplier, the questionnaire made it easy to show buyers exactly where we stand. Our GreenRatio score became a real sales asset, not just a compliance checkbox.',
-    author: 'Aigerim Bekova',
-    role: 'Founder, EcoPack Kazakhstan',
-  },
-]
+function scoreToGrade(score: number): string {
+  if (score >= 90) return 'A'
+  if (score >= 75) return 'B'
+  if (score >= 60) return 'C'
+  if (score >= 45) return 'D'
+  return 'F'
+}
 
 const FAQS = [
   {
@@ -104,9 +77,15 @@ const FAQS = [
 
 export function Home() {
   const navigate = useNavigate()
+  const { isAuthenticated, role } = useAuth()
   const [product, setProduct] = useState('')
   const [openFaq, setOpenFaq] = useState<number | null>(0)
-  const [testimonialIdx, setTestimonialIdx] = useState(0)
+  const [suppliers, setSuppliers] = useState<SupplierCatalogItemResponse[]>([])
+
+  const [topSuppliers, setTopSuppliers] = useState<TopSupplierEsgResponse[]>([])
+  const [topLoading, setTopLoading] = useState(true)
+
+  
 
   useEffect(() => {
     if (window.location.hash) {
@@ -115,11 +94,51 @@ export function Home() {
     }
   }, [])
 
+  // GET /api/supplier has no [Authorize] attribute, so it's safe to call from
+  // this public page (unlike GET /api/products, which is Buyer-only).
+  useEffect(() => {
+    suppliersApi
+      .list({ pageSize: 200 })
+      .then(setSuppliers)
+      .catch(() => setSuppliers([]))
+  }, [])
+
+  useEffect(() => {
+  let cancelled = false
+
+  suppliersApi
+    .getTopSuppliersByEsg(3)
+    .then((data) => {
+      if (!cancelled) setTopSuppliers(data)
+    })
+    .catch(() => {
+      if (!cancelled) setTopSuppliers([])
+    })
+    .finally(() => {
+      if (!cancelled) setTopLoading(false)
+    })
+
+  return () => {
+    cancelled = true
+  }
+}, [])
+
+
+  const verifiedCount = suppliers.filter((s) => s.isVerified).length
+  
   const handleSearch = () => {
+    // Authenticated buyers go straight to the catalog with their query
+    // applied — no more bouncing signed-in users to /register.
+    if (isAuthenticated && role === 'Buyer') {
+      navigate('/buyer', { state: { searchQuery: product } })
+      return
+    }
+    if (isAuthenticated && role) {
+      navigate(homeRouteForRole(role))
+      return
+    }
     navigate('/register', product ? { state: { intent: 'buyer', query: product } } : undefined)
   }
-
-  const testimonial = TESTIMONIALS[testimonialIdx]
 
   return (
     <div className={styles.page}>
@@ -162,23 +181,99 @@ export function Home() {
               <Search size={16} /> Search
             </button>
           </div>
-
-          <div className={styles.heroStats}>
-            <div>
-              <div className={styles.heroStatValue}>50,000+</div>
-              <div className={styles.heroStatLabel}>Verified Listings</div>
-            </div>
-            <div>
-              <div className={styles.heroStatValue}>12,000+</div>
-              <div className={styles.heroStatLabel}>Active Suppliers</div>
-            </div>
-            <div>
-              <div className={styles.heroStatValue}>98%</div>
-              <div className={styles.heroStatLabel}>ESG Compliant</div>
-            </div>
-          </div>
         </div>
       </section>
+
+
+      
+      <section className={styles.section} style={{ background: '#fff' }}>
+        <div className={styles.sectionInner}>
+          <span className={styles.eyebrow}>Top ESG suppliers</span>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.5rem' }}>
+            <h2 className={styles.howTitle} style={{ marginBottom: 0 }}>
+              Top 3 companies by ESG score
+            </h2>
+            <p className={styles.howBody} style={{ marginBottom: 0, maxWidth: '52rem' }}>
+              We show the three strongest suppliers by their latest Total ESG score. Each card also explains the score with Environmental, Social, and Governance breakdowns.
+            </p>
+          </div>
+
+          {topLoading ? (
+            <div className={styles.topSuppliersEmpty}>Loading top ESG suppliers…</div>
+          ) : topSuppliers.length > 0 ? (
+            <div className={styles.topSuppliersGrid}>
+              {topSuppliers.map((supplier, index) => (
+                <article key={supplier.id} className={styles.topSupplierCard}>
+                  <div className={styles.topSupplierHeader}>
+                    <div className={styles.topSupplierRank}>#{index + 1}</div>
+                    <div className={styles.topSupplierScore}>{supplier.totalEsgScore.toFixed(1)}</div>
+                  </div>
+
+                  <h3 className={styles.topSupplierName}>{supplier.companyName}</h3>
+
+                  <div className={styles.topSupplierMeta}>
+                    <span className={styles.topSupplierIndustry}>{supplier.industry}</span>
+                    <span className={styles.topSupplierGrade}>Grade {supplier.esgGrade}</span>
+                  </div>
+
+                  <div className={styles.topSupplierPillars}>
+                    <div className={styles.topPillarRow}>
+                      <div className={styles.topPillarLabelRow}>
+                        <span className={styles.topPillarLabel}>Environmental</span>
+                        <span className={styles.topPillarValue}>{supplier.environmental.toFixed(1)}</span>
+                      </div>
+                      <div className={styles.topPillarTrack}>
+                        <div
+                          className={styles.topPillarFill}
+                          style={{ width: `${Math.max(0, Math.min(100, supplier.environmental))}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.topPillarRow}>
+                      <div className={styles.topPillarLabelRow}>
+                        <span className={styles.topPillarLabel}>Social</span>
+                        <span className={styles.topPillarValue}>{supplier.social.toFixed(1)}</span>
+                      </div>
+                      <div className={styles.topPillarTrack}>
+                        <div
+                          className={styles.topPillarFill}
+                          style={{ width: `${Math.max(0, Math.min(100, supplier.social))}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.topPillarRow}>
+                      <div className={styles.topPillarLabelRow}>
+                        <span className={styles.topPillarLabel}>Governance</span>
+                        <span className={styles.topPillarValue}>{supplier.governance.toFixed(1)}</span>
+                      </div>
+                      <div className={styles.topPillarTrack}>
+                        <div
+                          className={styles.topPillarFill}
+                          style={{ width: `${Math.max(0, Math.min(100, supplier.governance))}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.topSupplierFooter}>
+                    <span>{supplier.isVerified ? 'Verified supplier' : 'Unverified supplier'}</span>
+                    <span>Updated {new Date(supplier.calculatedTime).toLocaleDateString()}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.topSuppliersEmpty}>No rated suppliers yet.</div>
+          )}
+        </div>
+      </section>
+
+
+
+
 
       {/* How it works ------------------------------------------------------ */}
       <section id="how-it-works" className={clsx(styles.section, styles.howSection)}>
@@ -202,11 +297,11 @@ export function Home() {
 
               <div className={styles.howStatsRow}>
                 <div>
-                  <div className={styles.howStatValue}>50K+</div>
-                  <div className={styles.howStatLabel}>Active Listings</div>
+                  <div className={styles.howStatValue}>{suppliers.length || '—'}</div>
+                  <div className={styles.howStatLabel}>Registered Suppliers</div>
                 </div>
                 <div>
-                  <div className={styles.howStatValue}>12K+</div>
+                  <div className={styles.howStatValue}>{verifiedCount || '—'}</div>
                   <div className={styles.howStatLabel}>Verified Suppliers</div>
                 </div>
               </div>
@@ -227,42 +322,28 @@ export function Home() {
               <div className={styles.stepCard}>
                 <div className={styles.stepNumber}>02</div>
                 <div>
-                  <div className={styles.stepTitle}>Scored Agains ESG criteria</div>
+                  <div className={styles.stepTitle}>Scored Against ESG Criteria</div>
                   <div className={styles.stepBody}>
                     Each listing is scored with a GreenRatio based on price competitiveness and the supplier's
-+                    Environmental, Social, and Governance answers.
+                    Environmental, Social, and Governance answers.
                   </div>
                 </div>
               </div>
 
-              <div className={styles.scorePanel}>
-                <div className={styles.scorePanelBadge}>
-                  <Sparkles size={13} /> GreenRatio Score
-                </div>
-                <div className={styles.scoreBars}>
-                  <div className={styles.scoreBarRow}>
-                    <span className={styles.scoreBarLabel}>Environmental</span>
-                    <div className={styles.scoreBarTrack}>
-                      <div className={styles.scoreBarFill} style={{ width: '92%' }} />
+              <div className={styles.stepList}>
+                <div className={styles.stepCard}>
+                  <div className={styles.stepNumber}>03</div>
+                  <div>
+                    <div className={styles.stepTitle}>Data-Driven GreenRatio Scoring</div>
+                    <div className={styles.stepBody}>
+                      Each listing’s score is calculated from supplier responses and displayed in real time.
                     </div>
-                    <span className={styles.scoreBarValue}>92</span>
-                  </div>
-                  <div className={styles.scoreBarRow}>
-                    <span className={styles.scoreBarLabel}>Social</span>
-                    <div className={styles.scoreBarTrack}>
-                      <div className={styles.scoreBarFill} style={{ width: '84%' }} />
-                    </div>
-                    <span className={styles.scoreBarValue}>84</span>
-                  </div>
-                  <div className={styles.scoreBarRow}>
-                    <span className={styles.scoreBarLabel}>Governance</span>
-                    <div className={styles.scoreBarTrack}>
-                      <div className={styles.scoreBarFill} style={{ width: '88%' }} />
-                    </div>
-                    <span className={styles.scoreBarValue}>88</span>
                   </div>
                 </div>
               </div>
+
+
+
             </div>
           </div>
         </div>
@@ -283,17 +364,20 @@ export function Home() {
           </div>
 
           <div className={styles.categoryGrid}>
-            {CATEGORIES.map((cat) => {
-              const Icon = cat.icon
+            {PRODUCT_CATEGORIES.map((cat) => {
+              const Icon = CATEGORY_ICON[cat] ?? Package
+              const target =
+                isAuthenticated && role === 'Buyer'
+                  ? { pathname: '/buyer', state: { category: cat } }
+                  : { pathname: '/register' }
               return (
-                <Link key={cat.name} to="/register" className={styles.categoryCard}>
-                  <div className={styles.categoryArt} style={{ background: cat.gradient }}>
+                <Link key={cat} to={target} className={styles.categoryCard}>
+                  <div className={styles.categoryArt} style={{ background: CATEGORY_GRADIENT[cat] }}>
                     <Icon size={34} strokeWidth={1.5} />
                   </div>
                   <div className={styles.categoryBody}>
                     <div>
-                      <div className={styles.categoryName}>{cat.name}</div>
-                      <div className={styles.categoryCount}>{cat.count}</div>
+                      <div className={styles.categoryName}>{CATEGORY_LABEL[cat] ?? cat}</div>
                     </div>
                     <ArrowRight size={16} color="var(--text-muted)" />
                   </div>
@@ -304,75 +388,41 @@ export function Home() {
         </div>
       </section>
 
-      {/* Trending listings --------------------------------------------------- */}
+      {/* Top-rated suppliers --------------------------------------------------- */}
       <section id="esg-spotlight" className={clsx(styles.section, styles.trendingSection)}>
         <div className={styles.sectionInner}>
           <span className={styles.eyebrow}>ESG Spotlight</span>
           <h2 className={styles.sectionTitle} style={{ marginBottom: '2rem' }}>
-            Trending green listings
+            Top-rated verified suppliers
           </h2>
 
-          <div className={styles.listingGrid}>
-            {LISTINGS.map((item) => (
-              <div key={item.name} className={styles.listingCard}>
-                <div className={styles.listingArt} style={{ background: item.gradient }}>
-                  <Boxes size={30} strokeWidth={1.5} />
-                  <div className={styles.listingRatio}>
-                    {item.ratio}
-                    <small>ratio</small>
+          {topSuppliers.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)' }}>
+              No verified suppliers with a completed ESG questionnaire yet — check back soon.
+            </p>
+          ) : (
+            <div className={styles.listingGrid}>
+              {topSuppliers.map((s) => (
+                <Link key={s.id} to={isAuthenticated ? `/buyer/suppliers/${s.id}` : '/register'} className={styles.listingCard}>
+                  <div className={styles.listingArt} style={{ background: CATEGORY_GRADIENT.Other }}>
+                    <ShieldCheck size={30} strokeWidth={1.5} />
+                    <div className={styles.listingRatio}>
+                      {scoreToGrade(s.totalEsgScore ?? 0)}
+                      <small>grade</small>
+                    </div>
                   </div>
-                </div>
-                <div className={styles.listingBody}>
-                  <div className={styles.listingName}>{item.name}</div>
-                  <div className={styles.listingSupplier}>{item.supplier}</div>
-                  <div className={styles.listingMeta}>
-                    <span className={styles.listingPrice}>{item.price}</span>
-                    <span className={styles.listingMin}>{item.min}</span>
+                  <div className={styles.listingBody}>
+                    <div className={styles.listingName}>{s.companyName}</div>
+                    <div className={styles.listingSupplier}>{s.industry}</div>
+                    <div className={styles.listingScoreTrack}>
+                      <div className={styles.listingScoreFill} style={{ width: `${Math.min(s.totalEsgScore ?? 0, 100)}%` }} />
+                    </div>
+                    <div className={styles.listingScoreLabel}>ESG {s.totalEsgScore}</div>
                   </div>
-                  <div className={styles.listingTags}>
-                    {item.tags.map((tag) => (
-                      <span key={tag} className={styles.listingTag}>
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className={styles.listingScoreTrack}>
-                    <div className={styles.listingScoreFill} style={{ width: `${item.esg}%` }} />
-                  </div>
-                  <div className={styles.listingScoreLabel}>ESG {item.esg}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonial -------------------------------------------------------- */}
-      <section className={clsx(styles.section, styles.testimonialSection)}>
-        <div className={styles.sectionInner}>
-          <div className={styles.testimonialCard}>
-            <div>
-              <span className={styles.eyebrow}>Trusted by industry leaders</span>
-              <p className={styles.testimonialQuote}>&ldquo;{testimonial.quote}&rdquo;</p>
-              <div className={styles.testimonialAuthor}>{testimonial.author}</div>
-              <div className={styles.testimonialRole}>{testimonial.role}</div>
-
-              <div className={styles.testimonialDots}>
-                {TESTIMONIALS.map((t, i) => (
-                  <button
-                    key={t.author}
-                    className={clsx(styles.testimonialDot, i === testimonialIdx && styles.testimonialDotActive)}
-                    onClick={() => setTestimonialIdx(i)}
-                    aria-label={`Show testimonial ${i + 1}`}
-                  />
-                ))}
-              </div>
+                </Link>
+              ))}
             </div>
-
-            <div className={styles.testimonialPortrait}>
-              <Sparkles size={40} strokeWidth={1} />
-            </div>
-          </div>
+          )}
         </div>
       </section>
 

@@ -63,14 +63,13 @@ export function SupplierDetail() {
                 <Phone size={15} color="var(--text-muted)" /> {supplier.phone}
               </div>
             )}
-            <a
-              href={suppliersApi.certificateUrl(supplier.id)}
-              target="_blank"
-              rel="noreferrer"
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}
+            <button
+              type="button"
+              onClick={() => suppliersApi.viewCertificate(supplier.id)}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
             >
               <FileText size={15} /> View sustainability certificate
-            </a>
+            </button>
           </div>
         </div>
 

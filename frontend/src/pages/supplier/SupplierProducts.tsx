@@ -12,6 +12,7 @@ const emptyForm: CreateProductRequest = {
   description: '',
   category: 'Other',
   price: 0,
+  quantity: 0,
   isActive: true,
 }
 
@@ -65,6 +66,7 @@ export function SupplierProducts() {
         description: full.description ?? '',
         category: full.category as ProductCategory,
         price: full.price,
+        quantity: full.quantity,
         isActive: full.isActive,
       })
       setPhotoUrl(full.imageUrl)
@@ -113,6 +115,10 @@ export function SupplierProducts() {
     }
     if (form.price <= 0) {
       setFormError('Price must be greater than zero.')
+      return
+    }
+    if (form.quantity < 0) {
+      setFormError('Quantity cannot be negative.')
       return
     }
     const descLen = form.description?.trim().length ?? 0
@@ -187,6 +193,7 @@ export function SupplierProducts() {
                   <th>Name</th>
                   <th>Category</th>
                   <th>Price</th>
+                  <th>Quantity</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
@@ -221,6 +228,7 @@ export function SupplierProducts() {
                       <span className={dash.chip}>{p.productCategory}</span>
                     </td>
                     <td>${p.price.toFixed(2)}</td>
+                    <td>{p.quantity}</td>
                     <td>
                       <div className={dash.tableActions}>
                         <Button size="sm" variant="ghost" onClick={() => openEdit(p.id)}>
@@ -364,8 +372,28 @@ export function SupplierProducts() {
                   min={0}
                   step="0.01"
                   className={dash.input}
-                  value={form.price}
-                  onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))}
+                  value={form.price === 0 ? '' : form.price}
+                  onChange={(e) =>
+                    setForm((f) => ({...f, price: e.target.value === '' ? 0 : Number(e.target.value)}))
+                  }
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <div className={dash.formGrid2}>
+              <div className={dash.formRow}>
+                <label className={dash.formLabel}>Quantity</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="1"
+                  className={dash.input}
+                  value={form.quantity === 0 ? '' : form.quantity}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, quantity: e.target.value === '' ? 0 : Number(e.target.value) }))
+                  }
+                  placeholder="0"
                 />
               </div>
             </div>
