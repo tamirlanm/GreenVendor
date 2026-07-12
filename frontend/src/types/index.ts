@@ -76,6 +76,19 @@ export interface RefreshTokenRequest {
 
 // ----- Supplier ----------------------------------------------------------
 
+export interface TopSupplierEsgResponse {
+  id: string
+  companyName: string
+  industry: string
+  isVerified: boolean
+  environmental: number
+  social: number
+  governance: number
+  totalEsgScore: number
+  esgGrade: string
+  calculatedTime: string
+}
+
 export interface SupplierCatalogItemResponse {
   id: string
   companyName: string

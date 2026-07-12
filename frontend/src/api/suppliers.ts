@@ -1,5 +1,12 @@
 import { api } from './client'
-import type { SupplierCatalogItemResponse, SupplierDetailsResponse, SupplierQuery, UpdateSupplierRequest } from '../types'
+
+import type {
+  SupplierCatalogItemResponse,
+  SupplierDetailsResponse,
+  SupplierQuery,
+  UpdateSupplierRequest,
+  TopSupplierEsgResponse,
+} from '../types'
 
 export const suppliersApi = {
   list: (query: SupplierQuery = {}) =>
@@ -43,4 +50,7 @@ export const suppliersApi = {
 
     setTimeout(() => window.URL.revokeObjectURL(url), 60_000)
   },
+
+  getTopSuppliersByEsg: (take = 3) =>
+    api.get<TopSupplierEsgResponse[]>('/supplier/top-esg', { params: { take } }).then((r) => r.data),
 }
