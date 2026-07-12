@@ -8,7 +8,6 @@ import {
   Plus,
   Search,
   ShieldCheck,
-  Sparkles,
   Wrench,
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -86,10 +85,7 @@ export function Home() {
   const [topSuppliers, setTopSuppliers] = useState<TopSupplierEsgResponse[]>([])
   const [topLoading, setTopLoading] = useState(true)
 
-  const verifiedTopSuppliers = suppliers
-  .filter((s) => s.isVerified && s.totalEsgScore != null)
-  .sort((a, b) => (b.totalEsgScore ?? 0) - (a.totalEsgScore ?? 0))
-  .slice(0, 3)
+  
 
   useEffect(() => {
     if (window.location.hash) {
@@ -334,34 +330,20 @@ export function Home() {
                 </div>
               </div>
 
-              <div className={styles.scorePanel}>
-                <div className={styles.scorePanelBadge}>
-                  <Sparkles size={13} /> GreenRatio Score
-                </div>
-                <div className={styles.scoreBars}>
-                  <div className={styles.scoreBarRow}>
-                    <span className={styles.scoreBarLabel}>Environmental</span>
-                    <div className={styles.scoreBarTrack}>
-                      <div className={styles.scoreBarFill} style={{ width: '92%' }} />
+              <div className={styles.stepList}>
+                <div className={styles.stepCard}>
+                  <div className={styles.stepNumber}>03</div>
+                  <div>
+                    <div className={styles.stepTitle}>Data-Driven GreenRatio Scoring</div>
+                    <div className={styles.stepBody}>
+                      Each listing’s score is calculated from supplier responses and displayed in real time.
                     </div>
-                    <span className={styles.scoreBarValue}>92</span>
-                  </div>
-                  <div className={styles.scoreBarRow}>
-                    <span className={styles.scoreBarLabel}>Social</span>
-                    <div className={styles.scoreBarTrack}>
-                      <div className={styles.scoreBarFill} style={{ width: '84%' }} />
-                    </div>
-                    <span className={styles.scoreBarValue}>84</span>
-                  </div>
-                  <div className={styles.scoreBarRow}>
-                    <span className={styles.scoreBarLabel}>Governance</span>
-                    <div className={styles.scoreBarTrack}>
-                      <div className={styles.scoreBarFill} style={{ width: '88%' }} />
-                    </div>
-                    <span className={styles.scoreBarValue}>88</span>
                   </div>
                 </div>
               </div>
+
+
+
             </div>
           </div>
         </div>
