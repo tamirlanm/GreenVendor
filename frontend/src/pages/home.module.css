@@ -807,7 +807,7 @@
 
 @media (min-width: 800px) {
   .footerTop {
-    grid-template-columns: 1.4fr repeat(4, 1fr);
+    grid-template-columns: 1.4fr repeat(2, 1fr);
   }
 }
 
