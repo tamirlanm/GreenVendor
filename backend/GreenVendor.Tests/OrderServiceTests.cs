@@ -18,7 +18,7 @@ public class OrderServiceTests
     {
         _validatorMock = new Mock<IValidator<CreateOrderRequest>>();
         _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<CreateOrderRequest>(), default))
-            .ReturnsAsync(new ValidationResult());   // пустой ValidationResult = валидация прошла
+            .ReturnsAsync(new ValidationResult());   
     }
 
     private OrderService CreateService(GreenVendor.Infrastructure.Data.AppDbContext db)
@@ -32,7 +32,7 @@ public class OrderServiceTests
         var buyerId = Guid.NewGuid();
         var productId = Guid.NewGuid();
         db.BuyerProfiles.Add(new BuyerProfile { Id = buyerId, UserId = Guid.NewGuid(), CompanyName = "Acme", Industry = Industry.Other, CreatedAt = DateTime.UtcNow });
-        db.Products.Add(new Product { Id = productId, SupplierId = Guid.NewGuid(), Name = "Widget", Price = 50m, IsActive = true, CreatedAt = DateTime.UtcNow });
+        db.Products.Add(new Product { Id = productId, SupplierId = Guid.NewGuid(), Name = "Widget", Price = 50m, Quantity = 10, IsActive = true, CreatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
         var service = CreateService(db);
         var request = new CreateOrderRequest { ProductId = productId, Quantity = 3 };
@@ -51,7 +51,7 @@ public class OrderServiceTests
         var buyerId = Guid.NewGuid();
         var productId = Guid.NewGuid();
         db.BuyerProfiles.Add(new BuyerProfile { Id = buyerId, UserId = Guid.NewGuid(), CompanyName = "Acme", Industry = Industry.Other, CreatedAt = DateTime.UtcNow });
-        db.Products.Add(new Product { Id = productId, SupplierId = Guid.NewGuid(), Name = "Widget", Price = 50m, IsActive = false, CreatedAt = DateTime.UtcNow });
+        db.Products.Add(new Product { Id = productId, SupplierId = Guid.NewGuid(), Name = "Widget", Price = 50m, Quantity = 10,IsActive = false, CreatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
         var service = CreateService(db);
         var request = new CreateOrderRequest { ProductId = productId, Quantity = 1 };
@@ -67,7 +67,7 @@ public class OrderServiceTests
         var strangerSupplierId = Guid.NewGuid();
         var productId = Guid.NewGuid();
         var orderId = Guid.NewGuid();
-        db.Products.Add(new Product { Id = productId, SupplierId = actualSupplierId, Name = "Widget", Price = 10m, IsActive = true, CreatedAt = DateTime.UtcNow });
+        db.Products.Add(new Product { Id = productId, SupplierId = actualSupplierId, Name = "Widget", Price = 10m, Quantity = 10, IsActive = true, CreatedAt = DateTime.UtcNow });
         db.Orders.Add(new Order { Id = orderId, BuyerId = Guid.NewGuid(), ProductId = productId, Quantity = 1, TotalPrice = 10m, Status = OrderStatus.Pending, CreatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
         var service = CreateService(db);
@@ -83,7 +83,7 @@ public class OrderServiceTests
         var supplierId = Guid.NewGuid();
         var productId = Guid.NewGuid();
         var orderId = Guid.NewGuid();
-        db.Products.Add(new Product { Id = productId, SupplierId = supplierId, Name = "Widget", Price = 10m, IsActive = true, CreatedAt = DateTime.UtcNow });
+        db.Products.Add(new Product { Id = productId, SupplierId = supplierId, Name = "Widget", Price = 10m, Quantity = 10, IsActive = true, CreatedAt = DateTime.UtcNow });
         db.Orders.Add(new Order { Id = orderId, BuyerId = Guid.NewGuid(), ProductId = productId, Quantity = 1, TotalPrice = 10m, Status = OrderStatus.Confirmed, CreatedAt = DateTime.UtcNow });
         await db.SaveChangesAsync();
         var service = CreateService(db);
