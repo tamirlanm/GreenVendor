@@ -11,4 +11,5 @@ public class ProductResponse
     public DateTime CreatedAt {get;set;}
     public string Supplier {get;set;} = null!;
     public string? ImageUrl {get;set;}
+    public int Quantity {get;set;}
 }

@@ -76,7 +76,8 @@ public class ProductService : IProductService
                 Name = p.Name,
                 ProductCategory = p.Category.ToString(),
                 Price = p.Price,
-                ImageUrl = p.ImageUrl
+                Quantity = p.Quantity,
+                ImageUrl = p.ImageUrl,
             }).ToListAsync();
 
             
@@ -106,6 +107,7 @@ public class ProductService : IProductService
             Category = product.Category.ToString(),
             Price = product.Price,
             IsActive = product.IsActive,
+            Quantity = product.Quantity,
             CreatedAt = product.CreatedAt,
             Supplier = product.Supplier.CompanyName,
             ImageUrl = product.ImageUrl
@@ -156,6 +158,7 @@ public class ProductService : IProductService
                 Name = p.Name,
                 ProductCategory = p.Category.ToString(),
                 Price = p.Price,
+                Quantity = p.Quantity,
                 ImageUrl = p.ImageUrl
             }).ToListAsync();
         
@@ -193,6 +196,7 @@ public class ProductService : IProductService
             Category = parsedCategory,
             Price = request.Price,
             IsActive = request.IsActive,
+            Quantity = request.Quantity,
             CreatedAt = DateTime.UtcNow,
             SupplierId = supplier.Id,
             Supplier = supplier
@@ -210,6 +214,7 @@ public class ProductService : IProductService
             Category = newProduct.Category.ToString(),
             Price = newProduct.Price,
             IsActive = newProduct.IsActive,
+            Quantity = newProduct.Quantity,
             CreatedAt = newProduct.CreatedAt,
             Supplier = supplier.CompanyName,
             ImageUrl = newProduct.ImageUrl
@@ -246,6 +251,7 @@ public class ProductService : IProductService
         productExists.Category = parsedCategory;
         productExists.Price = request.Price;
         productExists.IsActive = request.IsActive;
+        productExists.Quantity = request.Quantity;
 
         await _db.SaveChangesAsync();
         var response = new ProductResponse
@@ -256,6 +262,7 @@ public class ProductService : IProductService
             Description = productExists.Description,
             Category = productExists.Category.ToString(),
             Price = productExists.Price,
+            Quantity = productExists.Quantity,
             IsActive = productExists.IsActive,
             CreatedAt = productExists.CreatedAt,
             Supplier = supplier.CompanyName,
@@ -317,6 +324,7 @@ public class ProductService : IProductService
             Description = product.Description,
             Category = product.Category.ToString(),
             Price = product.Price,
+            Quantity = product.Quantity,
             IsActive = product.IsActive,
             ImageUrl = product.ImageUrl,
             CreatedAt = product.CreatedAt,

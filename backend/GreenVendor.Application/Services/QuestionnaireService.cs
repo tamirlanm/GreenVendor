@@ -36,7 +36,7 @@ public class QuestionnaireService : IQuestionnaireService
 
     public async Task<QuestionnaireStatusDTO?> GetMyQuestionnaireStatusAsync(Guid supplierId)
     {
-        var questionnaire = await _db.Questionnaires.FirstOrDefaultAsync(q => q.SupplierId == supplierId);
+        var questionnaire = await _db.Questionnaires.Include(q => q.Score).FirstOrDefaultAsync(q => q.SupplierId == supplierId);
         if(questionnaire is null)
         {
             return null;

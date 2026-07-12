@@ -21,5 +21,7 @@ public class CreateProductValidator : AbstractValidator<CreateProductRequest>
             .WithMessage("Invalid category value. Please check for typos.");
 
         RuleFor(x => x.Price).NotEmpty().GreaterThan(0).LessThan(1000000000);
+
+        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0).WithMessage("Quantity cannot be negative.");
     }
 }

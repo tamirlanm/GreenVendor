@@ -121,7 +121,7 @@ public class OrderService : IOrderService
         
         var mappedItems = orders.Select(o => new SupplierOrdersResponse
         {
-            Id = o.Product.Id,
+            Id = o.Id,
             ProductName = o.Product.Name,
             TotalPrice = o.TotalPrice,
             Quantity = o.Quantity,

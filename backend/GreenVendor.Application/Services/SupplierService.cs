@@ -51,7 +51,7 @@ public class SupplierService : ISupplierService
 
     public async Task<SupplierDetailsResponse?> GetSupplierDetailsAsync(Guid id)
     {
-        var supplier  = await _db.SupplierProfiles.Include(s => s.User).FirstOrDefaultAsync(s => s.Id == id);
+        var supplier  = await _db.SupplierProfiles.Include(s => s.User).Include(s => s.LatestScore).FirstOrDefaultAsync(s => s.Id == id);
         if(supplier is null)
         {
             throw new NotFoundException($"Supplier with this Id={id} not found.");

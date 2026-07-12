@@ -18,9 +18,9 @@ public class AdminService : IAdminService
 
     public async Task<IEnumerable<SupplierCatalogItemResponse>> GetSuppliersAdminAsync()
     {
-        var supppiers = await _db.SupplierProfiles.ToListAsync();
+        var suppiers = await _db.SupplierProfiles.Include(s => s.LatestScore).ToListAsync();
 
-        return supppiers.Select(supplier => new SupplierCatalogItemResponse
+        return suppiers.Select(supplier => new SupplierCatalogItemResponse
         {
             Id = supplier.Id,
             CompanyName = supplier.CompanyName,
@@ -33,7 +33,7 @@ public class AdminService : IAdminService
 
     public async Task<SupplierDetailsResponse?> VerifySupplierAsync(Guid id)
     {
-        var supplier = await _db.SupplierProfiles.Include(s => s.User).FirstOrDefaultAsync(s => s.Id == id);
+        var supplier = await _db.SupplierProfiles.Include(s => s.User).Include(s => s.LatestScore).FirstOrDefaultAsync(s => s.Id == id);
         if(supplier is null)
         {
             throw new NotFoundException("Supplier not found.");

@@ -22,5 +22,6 @@ public class UpdateProductValidator : AbstractValidator<UpdateProductRequest>
 
         RuleFor(x => x.Price).NotEmpty().GreaterThan(0).LessThan(1000000000);
 
+        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0).WithMessage("Quantity cannot be negative.");
     }
 }
