@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Package, Search, ShoppingCart, Users, X } from 'lucide-react'
 import clsx from 'clsx'
 import dash from '../../components/ui/dashboard.module.css'
@@ -13,6 +13,8 @@ import { INDUSTRIES, PRODUCT_CATEGORIES, type ProductsCatalog, type SupplierCata
 type Tab = 'suppliers' | 'products'
 
 export function BuyerCatalog() {
+  const location = useLocation()
+  const navState = (location.state ?? {}) as { searchQuery?: string; category?: string }
   const [tab, setTab] = useState<Tab>('products')
 
   return (
@@ -35,7 +37,11 @@ export function BuyerCatalog() {
         </button>
       </div>
 
-      {tab === 'products' ? <ProductsTab /> : <SuppliersTab />}
+      {tab === 'products' ? (
+        <ProductsTab initialSearch={navState.searchQuery} initialCategory={navState.category} />
+      ) : (
+        <SuppliersTab />
+      )}
     </div>
   )
 }
@@ -170,14 +176,14 @@ function scoreToGrade(score: number): string {
 
 //Products ------------------------------------------------------------------ 
 
-function ProductsTab() {
+function ProductsTab({ initialSearch, initialCategory }: { initialSearch?: string; initialCategory?: string }) {
   const [items, setItems] = useState<ProductsCatalog[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [search, setSearch] = useState('')
-  const [category, setCategory] = useState('')
+  const [search, setSearch] = useState(initialSearch ?? '')
+  const [category, setCategory] = useState(initialCategory ?? '')
   const [minGrade, setMinGrade] = useState('')
   const pageSize = 12
 
@@ -298,7 +304,10 @@ function ProductsTab() {
                   <span className={dash.chip}>{p.productCategory}</span>
                   <span style={{ fontWeight: 800, color: 'var(--text-dark)' }}>${p.price.toFixed(2)}</span>
                 </div>
-                <Button full size="sm" onClick={() => setOrderTarget(p)}>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.6rem' }}>
++                  {p.quantity > 0 ? `${p.quantity} in stock` : 'Out of stock'}
++                </p>
++                <Button full size="sm" onClick={() => setOrderTarget(p)} disabled={p.quantity <= 0}>
                   <ShoppingCart size={14} /> Order
                 </Button>
               </div>

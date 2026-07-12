@@ -33,7 +33,6 @@ async function enrichCompanyNames(items: ProductsCatalog[]): Promise<ProductsCat
 }
 
 export const productsApi = {
-  // Buyer catalog — real server-side filtering (name/category/price/ESG grade)
   list: (query: ProductQuery = {}) =>
     api
       .get<PagedResult<ProductsCatalog>>('/products', { params: { page: 1, pageSize: 12, ...query } })
@@ -41,7 +40,6 @@ export const productsApi = {
 
   getById: (id: string) => api.get<ProductResponse>(`/products/${id}`).then((r) => r.data),
 
-  // Supplier's own products
   listMine: (query: ProductQuery = {}) =>
     api
       .get<PagedResult<SupplierProductsCatalog>>('/suppliers/me/products', { params: { page: 1, pageSize: 20, ...query } })
@@ -55,13 +53,18 @@ export const productsApi = {
 
   remove: (id: string) => api.delete(`/suppliers/me/products/${id}`),
 
-  uploadPhoto: (_id: string, file: File) =>
-    new Promise<{ imageUrl: string | null }>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve({ imageUrl: typeof reader.result === 'string' ? reader.result : null })
-      reader.onerror = () => reject(new Error('Could not read the selected image.'))
-      reader.readAsDataURL(file)
-    }),
+  uploadPhoto: async (id: string, file: File) => {
+    const form = new FormData()
+    form.append('image', file)
 
-  deletePhoto: (_id: string) => Promise.resolve(),
+    const { data } = await api.post<ProductResponse>(`/suppliers/me/products/${id}/photo`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+
+    return data
+  },
+
+  deletePhoto: async (id: string) => {
+    await api.delete(`/suppliers/me/products/${id}/photo`)
+  },
 }

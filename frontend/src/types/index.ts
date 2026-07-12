@@ -154,6 +154,7 @@ export interface ProductsCatalog {
   companyName: string
   productCategory: string
   price: number
+  quantity: number
   imageUrl: string | null
 }
 
@@ -163,6 +164,7 @@ export interface SupplierProductsCatalog {
   name: string
   productCategory: string
   price: number
+  quantity: number
   imageUrl: string | null
 }
 
@@ -173,6 +175,7 @@ export interface ProductResponse {
   description: string | null
   category: string
   price: number
+  quantity: number
   isActive: boolean
   createdAt: string
   supplier: string
@@ -184,6 +187,7 @@ export interface CreateProductRequest {
   description?: string
   category: ProductCategory
   price: number
+  quantity: number
   isActive: boolean
 }
 
@@ -192,6 +196,7 @@ export interface UpdateProductRequest {
   description?: string
   category: ProductCategory
   price: number
+  quantity: number
   isActive: boolean
 }
 

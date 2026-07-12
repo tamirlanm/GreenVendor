@@ -17,10 +17,30 @@ export const suppliersApi = {
   uploadCertificate: (file: File) => {
     const form = new FormData()
     form.append('file', file)
+
     return api.post('/supplier/certificate', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
 
-  certificateUrl: (supplierId: string) => `/api/supplier/${supplierId}/certificate`,
+  viewCertificate: async (supplierId: string) => {
+    const response = await api.get(`/supplier/${supplierId}/certificate`, {
+      responseType: 'blob',
+    })
+
+    const contentType = (response.headers['content-type'] as string) || 'application/pdf'
+    const blob = new Blob([response.data], { type: contentType })
+    const url = window.URL.createObjectURL(blob)
+
+    const opened = window.open(url, '_blank', 'noopener,noreferrer')
+    if (!opened) {
+      const link = document.createElement('a')
+      link.href = url
+      link.target = '_blank'
+      link.rel = 'noopener noreferrer'
+      link.click()
+    }
+
+    setTimeout(() => window.URL.revokeObjectURL(url), 60_000)
+  },
 }
