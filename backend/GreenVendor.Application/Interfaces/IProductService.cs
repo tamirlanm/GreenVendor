@@ -12,4 +12,7 @@ public interface IProductService
 
     Task<ProductResponse> UploadProductPhotoAsync(Guid productId, Guid supplierId, FileDTO file);
     Task<bool> DeleteProductPhotoAsync(Guid productId, Guid supplierId);
+
+    Task<List<CategoryCountResponse>> GetCategoryCountsAsync();
+
 }

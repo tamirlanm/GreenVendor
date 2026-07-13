@@ -347,4 +347,17 @@ public class ProductService : IProductService
         }
         return true;
     }
+
+    public async Task<List<CategoryCountResponse>> GetCategoryCountsAsync(){
+        return await _db.Products
+            .Where(p => p.IsActive)
+            .GroupBy(p => p.Category)
+            .Select(g => new CategoryCountResponse
+            {
+                Category = g.Key.ToString(),
+                Count = g.Count()
+            })
+            .OrderBy(x => x.Category)
+            .ToListAsync();
+    }
 }
