@@ -32,6 +32,11 @@ Backend follows Clean Architecture:
 
 Roles: **Supplier** (fills questionnaire, lists products, uploads certificate), **Buyer** (browses catalog, places orders), **Admin** (verifies suppliers, views platform analytics, opens questionnaire access for a supplier).
 
+### High-level flow
+
+`Supplier registration -> Questionnaire submission -> ESG score calculation -> Admin verification -> Product publishing -> Buyer catalog filtering -> Order placement`
+
+
 ---
 
 ## Repository structure
@@ -52,11 +57,46 @@ GreenVendor/
 └── .github/workflows/ci.yml
 ```
 
+### Backend folders
+
+- **Domain** — core entities such as `Supplier`, `BuyerProfile`, `Product`, `Order`, `Question`, `EsgScore`.
+- **Application** — services, interfaces, DTOs, validators, exceptions, scoring logic.
+- **Infrastructure** — database access, migrations, persistence services, implementation details.
+- **Api** — HTTP controllers, middleware, auth setup, program bootstrapping.
+- **Tests** — unit and integration-style tests for business rules.
+
+### Frontend folders
+
+- **`src/api`** — HTTP client and API wrappers.
+- **`src/components`** — layout, reusable UI, protected route.
+- **`src/context`** — auth state and related context.
+- **`src/pages`** — public, buyer, supplier, and admin pages.
+- **`src/types`** — TypeScript types and DTO contracts.
+
+
+---
+
+## Core workflow
+
+1. A supplier registers or logs in.
+2. The admin opens questionnaire access for that supplier.
+3. The supplier submits questionnaire answers.
+4. The backend validates the request and calculates the ESG score.
+5. The supplier uploads a compliance certificate.
+6. The supplier creates products.
+7. The buyer browses the catalog and filters by ESG grade.
+8. The buyer opens supplier details and places an order.
+9. The admin monitors platform analytics.
+
 ---
 
 ## Local setup
 
-Requirements: [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+### Requirements
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Git](https://git-scm.com/).
+
+### Run with Docker
 
 ```bash
 git clone https://github.com/tamirlanm/GreenVendor.git
@@ -114,11 +154,12 @@ JWT_ISSUER=GreenVendor
 JWT_AUDIENCE=GreenVendorBackend
 JWT_EXPIRY_MINUTES=15
 JWT_REFRESH_EXPIRY_DAYS=7
+CORS_ALLOWED_ORIGINS=http://localhost:5173,https://esg.kbtu.kz
 ```
 
 `docker-compose.yml` reads these and injects them into the `api` container as ASP.NET Core configuration overrides (`ConnectionStrings__DefaultConnection`, `JwtSettings__Secret`, etc. — the double-underscore syntax is how `IConfiguration` maps environment variables to nested `appsettings.json` keys, no code changes required).
 
-**Never commit a real `.env` file or real production secrets inside `appsettings.json`.** The values currently in `appsettings.json` are local-dev-only placeholders, kept only so `dotnet run` works out of the box without Docker.
+**Never commit a real `.env` file or real production secrets inside `appsettings.json`.** The values currently in `appsettings.json` are local-dev-only placeholders, kept only so `dotnet run` works out of the box without Docker. `CORS_ALLOWED_ORIGINS` controls which frontend origins may call the backend.
 
 ---
 
@@ -159,6 +200,7 @@ Base path: `/api`. All endpoints return JSON. Protected endpoints require `Autho
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | GET | `/api/products` | Buyer | Catalog with filters: name, category, price range, min ESG grade |
+| GET | `/api/products/categories/count` | Non-Auth | Sum of products in every products category |
 | GET | `/api/products/{id}` | Buyer | Product details |
 | GET | `/api/suppliers/me/products` | Supplier | Own product listings |
 | POST | `/api/suppliers/me/products` | Supplier | Create a product |
@@ -198,6 +240,20 @@ Base path: `/api`. All endpoints return JSON. Protected endpoints require `Autho
 |---|---|---|
 | GET | `/health` | Health check used by Docker |
 | GET | `/api/docs` | Interactive Scalar/OpenAPI documentation |
+
+---
+
+## ESG scoring
+
+The ESG score is calculated by a deterministic weighted formula in `EsgScoringService`.
+
+- **E** — 40%
+- **S** — 35%
+- **G** — 25%
+
+The result is converted into a grade from **A** to **F**.
+
+This keeps the scoring transparent, reproducible, and easy to explain during a defense or demo.
 
 ---
 
@@ -323,4 +379,6 @@ Each project should run in its own Compose project (own network, own named volum
 
 ## Known limitations (MVP)
 
-ESG scoring is a deterministic weighted formula (`EsgScoringService`), not a model.
+- ESG scoring is rule-based, not AI-based.
+- This is an MVP version, so some workflows are intentionally simple.
+- Production hardening such as monitoring, backup automation, and audit logging can be added later.
