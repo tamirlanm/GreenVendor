@@ -25,6 +25,15 @@ public class ProductsController : ControllerBase
         return Ok(response);
     }
 
+
+    [HttpGet("categories/count")]
+    public async Task<ActionResult<List<CategoryCountResponse>>> GetCategoryCounts()
+    {
+        var response = await _productService.GetCategoryCountsAsync();
+        return Ok(response);
+    }
+
+
     [Authorize(Roles = "Buyer")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductResponse>> GetProduct(Guid id)
