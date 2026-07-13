@@ -79,6 +79,7 @@ export function Home() {
   const navigate = useNavigate()
   const { isAuthenticated, role } = useAuth()
   const [product, setProduct] = useState('')
+  const [category, setCategory] = useState('')
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [suppliers, setSuppliers] = useState<SupplierCatalogItemResponse[]>([])
 
@@ -130,14 +131,14 @@ export function Home() {
     // Authenticated buyers go straight to the catalog with their query
     // applied — no more bouncing signed-in users to /register.
     if (isAuthenticated && role === 'Buyer') {
-      navigate('/buyer', { state: { searchQuery: product } })
+      navigate('/buyer', { state: { searchQuery: product, category: category || undefined } })
       return
     }
     if (isAuthenticated && role) {
       navigate(homeRouteForRole(role))
       return
     }
-    navigate('/register', product ? { state: { intent: 'buyer', query: product } } : undefined)
+    navigate('/register', (product || category) ? {state: { intent: 'buyer', query: product, category }} : undefined)
   }
 
   return (
@@ -171,12 +172,39 @@ export function Home() {
                 />
               </div>
             </div>
+
+
+            
             <div className={styles.heroSearchField}>
               <div style={{ width: '100%' }}>
                 <span className={styles.heroSearchLabel}>Category</span>
-                <input placeholder="Any category" readOnly onClick={handleSearch} />
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  style={{
+                    width: '100%',
+                    border: 'none',
+                    background: 'transparent',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                    fontSize: '1rem',
+                    color: 'inherit',
+                    padding: 0,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="">Any category</option>
+                  {PRODUCT_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {CATEGORY_LABEL[cat] || cat}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
+
+
+
             <button className={styles.heroSearchBtn} onClick={handleSearch}>
               <Search size={16} /> Search
             </button>
@@ -369,9 +397,9 @@ export function Home() {
               const target =
                 isAuthenticated && role === 'Buyer'
                   ? { pathname: '/buyer', state: { category: cat } }
-                  : { pathname: '/register' }
+                  : { pathname: '/register', state: undefined }
               return (
-                <Link key={cat} to={target} className={styles.categoryCard}>
+                <Link key={cat} to={target.pathname} state={target.state} className={styles.categoryCard}>
                   <div className={styles.categoryArt} style={{ background: CATEGORY_GRADIENT[cat] }}>
                     <Icon size={34} strokeWidth={1.5} />
                   </div>
@@ -436,7 +464,7 @@ export function Home() {
             Join thousands of businesses already using GreenVendor to build transparent, sustainable supply chains.
           </p>
           <Link to="/register" className={styles.ctaButton}>
-            <Plus size={16} /> Get Started Free
+            <Plus size={16} /> Get Started
           </Link>
         </div>
       </section>

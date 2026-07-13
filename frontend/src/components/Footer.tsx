@@ -45,7 +45,7 @@ export function Footer() {
                 <a href="/#how-it-works">ESG Guide</a>
               </li>
               <li>
-                <span>API Docs</span>
+                <a href="https://github.com/tamirlanm/GreenVendor/blob/main/README.md#api-reference" target='_blank'>API Docs</a>
               </li>
               <li>
                 <span>Help Center</span>

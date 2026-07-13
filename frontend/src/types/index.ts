@@ -152,6 +152,7 @@ export interface UpdateBuyerRequest {
 // (see api/products.ts).
 export interface ProductQuery {
   name?: string
+  companyName?: string
   category?: ProductCategory | ''
   minPrice?: number
   maxPrice?: number

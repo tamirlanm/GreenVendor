@@ -144,6 +144,11 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
+.heroSearchField select option {
+  background-color: #222222; /* Dark background */
+  color: #ffffff;            /* White text */
+}
+
 .heroSearchLabel {
   font-size: 0.68rem;
   font-weight: 700;
