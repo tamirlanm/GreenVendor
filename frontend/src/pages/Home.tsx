@@ -86,6 +86,25 @@ export function Home() {
   const [topSuppliers, setTopSuppliers] = useState<TopSupplierEsgResponse[]>([])
   const [topLoading, setTopLoading] = useState(true)
 
+
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    fetch('/api/products/categories/count')
+      .then(res => res.json())
+      .then((data: { category: string; count: number }[]) => {
+        // Превращаем массив [{category: "Paper", count: 5}] в удобный объект {"Paper": 5}
+        const countsMap: Record<string, number> = {}
+        if (Array.isArray(data)) {
+          data.forEach(item => {
+            countsMap[item.category] = item.count
+          })
+        }
+        setCategoryCounts(countsMap)
+      })
+      .catch(err => console.error("Could not load category counts", err))
+  }, [])
+
   
 
   useEffect(() => {
@@ -406,6 +425,10 @@ export function Home() {
                   <div className={styles.categoryBody}>
                     <div>
                       <div className={styles.categoryName}>{CATEGORY_LABEL[cat] ?? cat}</div>
+                      {/* НОВЫЙ БЛОК: Вывод количества продуктов */}
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem', fontWeight: 500 }}>
+                        {categoryCounts[cat] !== undefined ? `${categoryCounts[cat]} products` : '0 products'}
+                      </div>
                     </div>
                     <ArrowRight size={16} color="var(--text-muted)" />
                   </div>
